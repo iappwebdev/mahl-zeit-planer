@@ -29,12 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can log out from any page
   4. App displays in German on both mobile and desktop devices
   5. Database tables have Row Level Security enabled before any data exists
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md — Project infrastructure: Angular scaffold, Supabase client, Tailwind CSS, DB schema with RLS
+- [ ] 01-02-PLAN.md — Auth flow: login, register, confirm-email, reset-password pages with guards
+- [ ] 01-03-PLAN.md — App shell: responsive navigation, logout, placeholder pages, visual verification
 
 ### Phase 2: Dish Management
 **Goal**: Families can build and maintain their personal dish library with categories and favorites
