@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Die Familie muss nie wieder täglich überlegen, was es zum Abendessen gibt — ein Klick generiert einen ausgewogenen Wochenplan aus dem eigenen Gerichtepool.
-**Current focus:** Phase 1 - Foundation & Auth
+**Current focus:** Phase 2 - Dish Management
 
 ## Current Position
 
-Phase: 1 of 4 (Foundation & Auth) - COMPLETED
-Plan: 3 of 3 in current phase - COMPLETED
-Status: Ready for Phase 2
-Last activity: 2026-02-16 — Completed 01-03-PLAN.md
+Phase: 2 of 4 (Dish Management) - IN PROGRESS
+Plan: 1 of 2 in current phase - COMPLETED
+Status: Executing Phase 2
+Last activity: 2026-02-16 — Completed 02-01-PLAN.md
 
-Progress: [█████░░░░░] 25%
+Progress: [██████░░░░] 33%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 14.5 minutes
-- Total execution time: 0.73 hours
+- Total plans completed: 4
+- Average duration: 11.3 minutes
+- Total execution time: 0.78 hours
 
 **By Phase:**
 
 | Phase | Plans | Total  | Avg/Plan |
 |-------|-------|--------|----------|
 | 01    | 3     | 43.5m  | 14.5m    |
+| 02    | 1     | 1.4m   | 1.4m     |
 
 **Recent Trend:**
-- Last 5 plans: 5.7m, 2.8m, 35m
-- Trend: Variable (checkpoint verification time in plan 3)
+- Last 5 plans: 2.8m, 35m, 1.4m
+- Trend: Improving (Phase 2 plan 1 completed quickly)
 
 *Updated after each plan completion*
 
@@ -39,6 +40,7 @@ Progress: [█████░░░░░] 25%
 - 2026-02-16: 01-01-PLAN.md (Foundation Infrastructure) - 5.7m - 3 tasks
 - 2026-02-16: 01-02-PLAN.md (Authentication Pages & Route Guards) - 2.8m - 1 task
 - 2026-02-16: 01-03-PLAN.md (App Shell & Navigation) - 35m - 2 tasks
+- 2026-02-16: 02-01-PLAN.md (Dishes Database & Service Layer) - 1.4m - 2 tasks
 
 ## Accumulated Context
 
@@ -61,6 +63,9 @@ Recent decisions affecting current work:
 - **[01-03]** Bottom tabs mobile, top bar desktop - Mobile-first navigation pattern
 - **[01-03]** Logout visible in nav (not hidden) - Per research decision, quick access to logout
 - **[01-03]** .postcssrc.json format for Tailwind - Angular esbuild builder requirement
+- [Phase 02-01]: TEXT with CHECK constraint over PostgreSQL ENUM for categories (easier to modify)
+- [Phase 02-01]: Reuse existing update_updated_at() function from 001_profiles.sql
+- [Phase 02-01]: getAll orders by is_favorite DESC, name ASC - favorites appear first
 
 ### Pending Todos
 
@@ -75,7 +80,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-16 (discuss-phase)
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-dish-management/02-CONTEXT.md
+Last session: 2026-02-16 (execute-phase)
+Stopped at: Completed 02-01-PLAN.md
+Resume file: .planning/phases/02-dish-management/02-01-SUMMARY.md
 Dev server: Running at http://localhost:4200
