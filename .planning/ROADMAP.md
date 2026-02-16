@@ -12,7 +12,7 @@ This roadmap delivers a family meal planning app that eliminates daily dinner de
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Auth** - Secure infrastructure, authentication, and database setup with RLS
+- [x] **Phase 1: Foundation & Auth** - Secure infrastructure, authentication, and database setup with RLS (completed 2026-02-16)
 - [ ] **Phase 2: Dish Management** - Complete dish library CRUD with categories and favorites
 - [ ] **Phase 3: Meal Planning** - Manual and automated weekly meal plan generation
 - [ ] **Phase 4: Realtime Collaboration** - Multi-user sync and family workspace sharing
@@ -32,9 +32,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Project infrastructure: Angular scaffold, Supabase client, Tailwind CSS, DB schema with RLS
-- [ ] 01-02-PLAN.md — Auth flow: login, register, confirm-email, reset-password pages with guards
-- [ ] 01-03-PLAN.md — App shell: responsive navigation, logout, placeholder pages, visual verification
+- [x] 01-01-PLAN.md — Project infrastructure: Angular scaffold, Supabase client, Tailwind CSS, DB schema with RLS
+- [x] 01-02-PLAN.md — Auth flow: login, register, confirm-email, reset-password pages with guards
+- [x] 01-03-PLAN.md — App shell: responsive navigation, logout, placeholder pages, visual verification
 
 ### Phase 2: Dish Management
 **Goal**: Families can build and maintain their personal dish library with categories and favorites
@@ -93,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Auth | 0/3 | Not started | - |
+| 1. Foundation & Auth | 3/3 | Complete | 2026-02-16 |
 | 2. Dish Management | 0/2 | Not started | - |
 | 3. Meal Planning | 0/3 | Not started | - |
 | 4. Realtime Collaboration | 0/2 | Not started | - |
