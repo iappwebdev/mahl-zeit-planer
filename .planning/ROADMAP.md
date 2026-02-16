@@ -64,12 +64,12 @@ Plans:
   5. Auto-generated plan prefers favorite dishes and avoids recent repeats
   6. User can swap individual meals in the plan without regenerating the entire week
   7. User can regenerate the entire week with one click
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [ ] 03-01-PLAN.md — Data layer: weekly_plans, meal_assignments, category_preferences tables with RLS, TypeScript models, and MealPlanService CRUD
+- [ ] 03-02-PLAN.md — Calendar UI: weekly Mon-Sun view with day cards, week navigation, dish picker bottom sheet, manual assignment/swap/clear
+- [ ] 03-03-PLAN.md — Generation engine: greedy randomized algorithm with category balance config, favorite preference, repeat avoidance, and integrated generate/regenerate buttons
 
 ### Phase 4: Realtime Collaboration
 **Goal**: Family members share one workspace and see each other's changes instantly
