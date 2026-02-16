@@ -75,7 +75,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-16T14:35:00Z (plan execution)
-Stopped at: Completed Phase 1 (01-foundation-auth)
-Resume file: Ready for Phase 2
+Last session: 2026-02-16 (discuss-phase)
+Stopped at: Phase 2 context gathered
+Resume file: .planning/phases/02-dish-management/02-CONTEXT.md
 Dev server: Running at http://localhost:4200
