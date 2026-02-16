@@ -46,11 +46,11 @@ Plans:
   3. User can delete dishes from their library
   4. User can filter dish list by category
   5. User can mark dishes as favorites and see favorites indicated in the list
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Data layer: dishes table migration with RLS, Dish model, and DishService CRUD operations
+- [ ] 02-02-PLAN.md — Dishes UI: Angular Material setup, complete dish management page with CRUD, filtering, favorites, and undo delete
 
 ### Phase 3: Meal Planning
 **Goal**: Users can generate balanced weekly dinner plans automatically or build them manually
