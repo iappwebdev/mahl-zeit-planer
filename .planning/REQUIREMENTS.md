@@ -92,33 +92,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DISH-01 | — | Pending |
-| DISH-02 | — | Pending |
-| DISH-03 | — | Pending |
-| DISH-04 | — | Pending |
-| DISH-05 | — | Pending |
-| PLAN-01 | — | Pending |
-| PLAN-02 | — | Pending |
-| PLAN-03 | — | Pending |
-| PLAN-04 | — | Pending |
-| PLAN-05 | — | Pending |
-| PLAN-06 | — | Pending |
-| PLAN-07 | — | Pending |
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| AUTH-06 | — | Pending |
-| UI-01 | — | Pending |
-| UI-02 | — | Pending |
-| UI-03 | — | Pending |
+| DISH-01 | Phase 2 | Pending |
+| DISH-02 | Phase 2 | Pending |
+| DISH-03 | Phase 2 | Pending |
+| DISH-04 | Phase 2 | Pending |
+| DISH-05 | Phase 2 | Pending |
+| PLAN-01 | Phase 3 | Pending |
+| PLAN-02 | Phase 3 | Pending |
+| PLAN-03 | Phase 3 | Pending |
+| PLAN-04 | Phase 3 | Pending |
+| PLAN-05 | Phase 3 | Pending |
+| PLAN-06 | Phase 3 | Pending |
+| PLAN-07 | Phase 3 | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 4 | Pending |
+| AUTH-05 | Phase 4 | Pending |
+| AUTH-06 | Phase 4 | Pending |
+| UI-01 | Phase 1 | Pending |
+| UI-02 | Phase 1 | Pending |
+| UI-03 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21 ⚠️
+- Mapped to phases: 21
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-16*
-*Last updated: 2026-02-16 after initial definition*
+*Last updated: 2026-02-16 after roadmap creation*
