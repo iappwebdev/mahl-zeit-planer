@@ -1,0 +1,69 @@
+<!-- Desktop navigation -->
+<nav class="hidden md:flex bg-green-700 text-white px-6 py-4 shadow-lg">
+  <div class="max-w-6xl mx-auto w-full flex items-center justify-between">
+    <!-- Brand -->
+    <a routerLink="/gerichte" class="text-xl font-semibold hover:text-green-100 transition-colors">
+      MahlZeitPlaner
+    </a>
+
+    <!-- Navigation links -->
+    <div class="flex items-center gap-6">
+      <a
+        routerLink="/gerichte"
+        routerLinkActive="bg-green-600"
+        class="px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+      >
+        Meine Gerichte
+      </a>
+      <a
+        routerLink="/wochenplan"
+        routerLinkActive="bg-green-600"
+        class="px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+      >
+        Wochenplan
+      </a>
+      <button
+        (click)="logout()"
+        class="px-4 py-2 rounded-lg bg-green-800 hover:bg-green-900 transition-colors"
+      >
+        Abmelden
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile navigation (bottom tabs) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+  <div class="flex justify-around items-center h-16">
+    <!-- Gerichte tab -->
+    <a
+      routerLink="/gerichte"
+      routerLinkActive="text-green-700"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 hover:text-green-700 transition-colors"
+    >
+      <div class="text-2xl mb-1">🍽️</div>
+      <span class="text-xs">Gerichte</span>
+    </a>
+
+    <!-- Wochenplan tab -->
+    <a
+      routerLink="/wochenplan"
+      routerLinkActive="text-green-700"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 hover:text-green-700 transition-colors"
+    >
+      <div class="text-2xl mb-1">📅</div>
+      <span class="text-xs">Wochenplan</span>
+    </a>
+
+    <!-- Abmelden tab -->
+    <button
+      (click)="logout()"
+      class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 hover:text-green-700 transition-colors"
+    >
+      <div class="text-2xl mb-1">🚪</div>
+      <span class="text-xs">Abmelden</span>
+    </button>
+  </div>
+</nav>
