@@ -10,33 +10,34 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 ## Current Position
 
 Phase: 1 of 4 (Foundation & Auth)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Executing
-Last activity: 2026-02-16 — Completed 01-01-PLAN.md
+Last activity: 2026-02-16 — Completed 01-02-PLAN.md
 
-Progress: [██░░░░░░░░] 8%
+Progress: [████░░░░░░] 17%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 5.7 minutes
-- Total execution time: 0.09 hours
+- Total plans completed: 2
+- Average duration: 4.2 minutes
+- Total execution time: 0.15 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01    | 1     | 5.7m  | 5.7m     |
+| 01    | 2     | 8.5m  | 4.2m     |
 
 **Recent Trend:**
-- Last 5 plans: 5.7m
-- Trend: Establishing baseline
+- Last 5 plans: 5.7m, 2.8m
+- Trend: Improving velocity
 
 *Updated after each plan completion*
 
 **Recent Completions:**
 - 2026-02-16: 01-01-PLAN.md (Foundation Infrastructure) - 5.7m - 3 tasks
+- 2026-02-16: 01-02-PLAN.md (Authentication Pages & Route Guards) - 2.8m - 1 task
 
 ## Accumulated Context
 
@@ -52,6 +53,9 @@ Recent decisions affecting current work:
 - **[01-01]** Tailwind CSS v4 with PostCSS - Latest version for improved performance
 - **[01-01]** Use (SELECT auth.uid()) in RLS policies - 94-99% performance gain per CVE-2025-48757
 - **[01-01]** Auto-create profiles via trigger - Ensures profile exists for all users
+- **[01-02]** Functional guards (CanActivateFn) over class-based - Angular 19 best practice
+- **[01-02]** Generic password reset message - Prevents email enumeration attacks
+- **[01-02]** Display name in auth metadata - Simplifies registration flow
 
 ### Pending Todos
 
@@ -66,6 +70,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-16T12:51:54Z (plan execution)
-Stopped at: Completed 01-foundation-auth/01-01-PLAN.md
-Resume file: .planning/phases/01-foundation-auth/01-01-SUMMARY.md
+Last session: 2026-02-16T12:58:14Z (plan execution)
+Stopped at: Completed 01-foundation-auth/01-02-PLAN.md
+Resume file: .planning/phases/01-foundation-auth/01-02-SUMMARY.md
