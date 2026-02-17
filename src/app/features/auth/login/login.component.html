@@ -1,29 +1,30 @@
-<div class="min-h-screen flex items-center justify-center bg-green-50 px-4 py-8">
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+<div class="min-h-screen flex items-center justify-center bg-canvas px-4 py-8">
+  <div class="w-full max-w-md bg-surface rounded-2xl shadow-elevated p-8">
     <!-- Branding -->
-    <div class="text-center mb-8">
-      <div class="text-4xl mb-2">🍴</div>
-      <h1 class="text-2xl font-bold text-green-800">MahlZeitPlaner</h1>
+    <div class="text-center mb-10">
+      <div class="text-5xl mb-3">🍴</div>
+      <h1 class="text-3xl font-bold" style="color: var(--brand-primary); letter-spacing: -0.02em;">MahlZeitPlaner</h1>
+      <p class="text-sm mt-2" style="color: var(--text-tertiary);">Deine Wochenplanung, einfach gemacht</p>
     </div>
 
     <!-- Login Form -->
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <h2 class="text-xl font-semibold text-gray-800 mb-6">Anmelden</h2>
+      <h2 class="text-xl font-semibold mb-6 text-primary">Anmelden</h2>
 
       <!-- Email Field -->
-      <div class="mb-4">
-        <label for="email" class="block text-base font-medium text-gray-700 mb-2">
+      <div class="mb-5">
+        <label for="email" class="block text-sm font-semibold mb-2 text-secondary">
           E-Mail
         </label>
         <input
           id="email"
           type="email"
           formControlName="email"
-          class="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          [class.border-red-500]="email?.invalid && email?.touched"
+          class="w-full px-4 py-3 text-base border rounded-xl focus:outline-none transition-all auth-input"
+          [class.border-error]="email?.invalid && email?.touched"
         />
         @if (email?.invalid && email?.touched) {
-          <div class="text-red-600 text-sm mt-1">
+          <div class="text-sm mt-1.5" style="color: var(--error);">
             @if (email?.errors?.['required']) {
               <p>E-Mail ist erforderlich</p>
             }
@@ -35,19 +36,19 @@
       </div>
 
       <!-- Password Field -->
-      <div class="mb-4">
-        <label for="password" class="block text-base font-medium text-gray-700 mb-2">
+      <div class="mb-5">
+        <label for="password" class="block text-sm font-semibold mb-2 text-secondary">
           Passwort
         </label>
         <input
           id="password"
           type="password"
           formControlName="password"
-          class="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          [class.border-red-500]="password?.invalid && password?.touched"
+          class="w-full px-4 py-3 text-base border rounded-xl focus:outline-none transition-all auth-input"
+          [class.border-error]="password?.invalid && password?.touched"
         />
         @if (password?.invalid && password?.touched) {
-          <div class="text-red-600 text-sm mt-1">
+          <div class="text-sm mt-1.5" style="color: var(--error);">
             @if (password?.errors?.['required']) {
               <p>Passwort ist erforderlich</p>
             }
@@ -60,15 +61,15 @@
 
       <!-- Forgot Password Link -->
       <div class="mb-6">
-        <a routerLink="/passwort-vergessen" class="text-sm text-green-600 hover:text-green-700">
+        <a routerLink="/passwort-vergessen" class="text-sm font-medium transition-colors" style="color: var(--brand-primary);">
           Passwort vergessen?
         </a>
       </div>
 
       <!-- Server Error -->
       @if (serverError) {
-        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p class="text-red-600 text-sm">{{ serverError }}</p>
+        <div class="mb-5 p-4 rounded-xl" style="background-color: var(--error-bg); border: 1px solid var(--error);">
+          <p class="text-sm font-medium" style="color: var(--error);">{{ serverError }}</p>
         </div>
       }
 
@@ -76,7 +77,7 @@
       <button
         type="submit"
         [disabled]="loginForm.invalid || isLoading"
-        class="w-full py-3 text-base font-semibold text-white bg-green-600 rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        class="w-full py-3.5 text-base font-bold text-white rounded-xl focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed auth-submit"
       >
         @if (isLoading) {
           <span class="inline-flex items-center">
@@ -93,13 +94,40 @@
     </form>
 
     <!-- Register Link -->
-    <div class="mt-6 text-center">
-      <p class="text-base text-gray-600">
+    <div class="mt-8 text-center">
+      <p class="text-base text-secondary">
         Noch kein Konto?
-        <a routerLink="/registrieren" class="text-green-600 hover:text-green-700 font-semibold ml-1">
+        <a routerLink="/registrieren" class="font-bold ml-1 transition-colors" style="color: var(--brand-primary);">
           Registrieren
         </a>
       </p>
     </div>
   </div>
 </div>
+
+<style>
+  .auth-input {
+    background-color: var(--bg-elevated);
+    border-color: var(--border-standard);
+    color: var(--text-primary);
+  }
+
+  .auth-input:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px var(--brand-subtle);
+  }
+
+  .border-error {
+    border-color: var(--error) !important;
+  }
+
+  .auth-submit {
+    background-color: var(--brand-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .auth-submit:hover:not(:disabled) {
+    background-color: var(--brand-hover);
+    box-shadow: var(--shadow-md);
+  }
+</style>
