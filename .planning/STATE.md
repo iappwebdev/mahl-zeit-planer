@@ -61,7 +61,7 @@ Recent decisions affecting current work:
 - **[01-01]** Tailwind CSS v4 with PostCSS - Latest version for improved performance
 - **[01-01]** Use (SELECT auth.uid()) in RLS policies - 94-99% performance gain per CVE-2025-48757
 - **[01-01]** Auto-create profiles via trigger - Ensures profile exists for all users
-- **[01-02]** Functional guards (CanActivateFn) over class-based - Angular 19 best practice
+- **[01-02]** Functional guards (CanActivateFn) over class-based - Angular 21 best practice
 - **[01-02]** Generic password reset message - Prevents email enumeration attacks
 - **[01-02]** Display name in auth metadata - Simplifies registration flow
 - **[01-03]** German route names throughout app - Consistent with Deutsch-only UI

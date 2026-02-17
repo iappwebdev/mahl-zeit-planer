@@ -36,7 +36,7 @@ All artifacts verified at three levels: Exists, Substantive, Wired.
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `package.json` | Angular 19, Supabase JS, Tailwind CSS dependencies | ✓ VERIFIED | Contains `@angular/core: ^21.1.0`, `@supabase/supabase-js: ^2.95.3`, `tailwindcss: ^4.1.18` (lines 26-32, 40-43) |
+| `package.json` | angular 21, Supabase JS, Tailwind CSS dependencies | ✓ VERIFIED | Contains `@angular/core: ^21.1.0`, `@supabase/supabase-js: ^2.95.3`, `tailwindcss: ^4.1.18` (lines 26-32, 40-43) |
 | `src/app/core/services/supabase.service.ts` | Centralized Supabase client with auth methods | ✓ VERIFIED | Exports SupabaseService with signUp, signIn, signOut, getUser, getSession, onAuthStateChange methods (lines 26-74). Injectable with `providedIn: 'root'` (lines 5-7) |
 | `src/environments/environment.ts` | Supabase URL and anon key configuration | ✓ VERIFIED | Contains `supabaseUrl` and `supabaseKey` properties with actual values (lines 1-5). Used in SupabaseService constructor (supabase.service.ts line 12) |
 | `supabase/migrations/001_profiles.sql` | Profiles table with RLS policies and optimized auth patterns | ✓ VERIFIED | Contains profiles table, RLS enabled (line 20), 3 policies with `(SELECT auth.uid())` pattern (5 occurrences), performance index (line 50), triggers for auto-profile creation (lines 56-75) and updated_at (lines 81-94) |

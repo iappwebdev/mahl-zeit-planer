@@ -25,7 +25,7 @@ key-files:
   modified: []
 decisions:
   - decision: Use functional CanActivateFn guards over class-based guards
-    rationale: Angular 19 best practice, simpler and more testable with inject()
+    rationale: angular 21 best practice, simpler and more testable with inject()
     alternatives: [class-based guards with CanActivate interface]
     impact: Guards are more concise and align with modern Angular patterns
   - decision: Show generic success message for password reset regardless of email existence
@@ -55,7 +55,7 @@ This plan delivers the complete user-facing authentication experience:
 1. **Route Guards (Functional Guards):**
    - `authGuard`: Protects routes requiring authentication, redirects to `/anmelden` with return URL
    - `guestGuard`: Prevents authenticated users from accessing auth pages, redirects to `/gerichte`
-   - Both use Angular 19 functional `CanActivateFn` pattern with `inject()` for cleaner code
+   - Both use angular 21 functional `CanActivateFn` pattern with `inject()` for cleaner code
 
 2. **Login Page (`/anmelden`):**
    - Reactive form with email and password fields
@@ -108,9 +108,9 @@ None - plan executed exactly as written. All components compile successfully and
 ## Key Technical Decisions
 
 ### 1. Functional Guards with inject()
-- **Context**: Angular 19 supports both class-based and functional guards
+- **Context**: angular 21 supports both class-based and functional guards
 - **Decision**: Used functional `CanActivateFn` pattern with `inject()` for dependency injection
-- **Impact**: Simpler code, better testability, aligns with Angular 19 best practices
+- **Impact**: Simpler code, better testability, aligns with angular 21 best practices
 
 ### 2. Security-First Password Reset
 - **Context**: Password reset could reveal if email exists in system
@@ -160,7 +160,7 @@ All verification criteria passed:
 ✓ Error displays use `text-red-600` class (9 occurrences across 3 files)
 ✓ Submit buttons have `[disabled]` binding when form invalid (3 occurrences)
 ✓ Guards use functional `CanActivateFn` pattern (4 occurrences across 2 files)
-✓ All pages use Angular 19 `@if` control flow syntax (6 validation blocks)
+✓ All pages use angular 21 `@if` control flow syntax (6 validation blocks)
 ✓ All pages display "MahlZeitPlaner" branding (4 occurrences)
 ✓ Login form has email and password fields with German inline validation
 ✓ Register form has displayName, email, and password fields with German inline validation

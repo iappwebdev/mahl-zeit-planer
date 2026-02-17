@@ -120,7 +120,7 @@ src/
 │   │       └── profile.routes.ts
 │   │
 │   ├── app.component.ts
-│   ├── app.config.ts              # App-level configuration (Angular 19+)
+│   ├── app.config.ts              # App-level configuration (Angular 21+)
 │   └── app.routes.ts              # Top-level routing
 │
 └── environments/
@@ -139,7 +139,7 @@ src/
 
 ### Pattern 1: Service-Based State Management with Signals
 
-**What:** Use Angular Signals (Angular 19+) within services to manage feature-level state without external libraries like NgRx.
+**What:** Use Angular Signals (Angular 21+) within services to manage feature-level state without external libraries like NgRx.
 
 **When to use:** For small to medium apps with shared state between components but not complex async workflows requiring extensive side effect management.
 

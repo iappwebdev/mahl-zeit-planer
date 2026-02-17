@@ -1,12 +1,12 @@
 # Phase 1: Foundation & Auth - Research
 
 **Researched:** 2026-02-16
-**Domain:** Angular 19 + Supabase Auth + Tailwind CSS
+**Domain:** angular 21 + Supabase Auth + Tailwind CSS
 **Confidence:** HIGH
 
 ## Summary
 
-Phase 1 establishes secure authentication with email/password using Supabase Auth integrated into an Angular 19 application with German-language UI and Tailwind CSS styling. The research confirms that this stack is well-documented and production-ready, with official guides for Angular + Supabase integration, comprehensive RLS patterns, and modern Angular i18n support.
+Phase 1 establishes secure authentication with email/password using Supabase Auth integrated into an angular 21 application with German-language UI and Tailwind CSS styling. The research confirms that this stack is well-documented and production-ready, with official guides for Angular + Supabase integration, comprehensive RLS patterns, and modern Angular i18n support.
 
 The critical security concern is Row Level Security (RLS): Supabase tables default to RLS disabled, making all data publicly accessible through the API unless explicitly enabled. RLS must be configured before any data exists, with proper policies for authenticated user access. The free tier project pausing (after 7 days inactivity) requires early decision on mitigation strategy or upgrade path.
 
@@ -114,7 +114,7 @@ src/
 │   │   │   ├── layout/          # App shell, nav, logout button
 │   │   │   └── form-errors/     # Reusable inline validation display
 │   │   └── directives/
-│   ├── app.config.ts            # App configuration (Angular 19 standalone)
+│   ├── app.config.ts            # App configuration (angular 21 standalone)
 │   └── app.routes.ts            # Route configuration with guards
 ├── environments/
 │   ├── environment.ts           # Development (Supabase URL/Key)
@@ -179,7 +179,7 @@ export class SupabaseService {
 }
 ```
 
-### Pattern 2: Functional Route Guards (Angular 19)
+### Pattern 2: Functional Route Guards (angular 21)
 **What:** Function-based guards replacing class-based guards
 **When to use:** Protect routes requiring authentication
 **Example:**
@@ -299,7 +299,7 @@ ng build --configuration production
 - **Directly referencing auth.users columns other than `id`:** Only use `auth.users.id` as foreign key; other columns may change (Supabase-managed schema)
 - **Storing secrets in environment.ts:** Use Vercel environment variables for production; environment.ts values are bundled into client code
 - **Creating tables without RLS:** Always enable RLS before inserting data; default is RLS disabled (public access)
-- **Using class-based guards:** Angular 19 recommends functional guards; cleaner injection and composition
+- **Using class-based guards:** angular 21 recommends functional guards; cleaner injection and composition
 - **Bypassing RLS testing via SQL Editor:** SQL Editor has superuser access; always test policies from client SDK
 - **Using `auth.uid()` directly in policies:** Wrap in `(select auth.uid())` for 94-99% performance improvement via query plan caching
 - **Not indexing policy columns:** Always index columns used in RLS policies (e.g., user_id)
@@ -833,4 +833,4 @@ export class LoginComponent {
 - Open questions: MEDIUM - Based on "Claude's discretion" items; recommendations are reasonable but not user-confirmed
 
 **Research date:** 2026-02-16
-**Valid until:** ~30 days (2026-03-18) - Stack is stable; Angular 19 and Supabase are mature; Tailwind v4 recently released but stabilized
+**Valid until:** ~30 days (2026-03-18) - Stack is stable; angular 21 and Supabase are mature; Tailwind v4 recently released but stabilized

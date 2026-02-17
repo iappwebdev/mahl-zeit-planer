@@ -8,7 +8,7 @@ dependency-graph:
   provides: [angular-app, supabase-client, tailwind-css, database-schema]
   affects: [all-future-features]
 tech-stack:
-  added: [Angular 19, Supabase JS v2.95.3, Tailwind CSS v4.1.18]
+  added: [angular 21, Supabase JS v2.95.3, Tailwind CSS v4.1.18]
   patterns: [standalone-components, environment-configuration, rls-security]
 key-files:
   created:
@@ -46,13 +46,13 @@ metrics:
 
 # Phase 1 Plan 1: Foundation Infrastructure Summary
 
-**One-liner:** Angular 19 app scaffolded with Supabase JS client, Tailwind CSS v4, German locale, and RLS-secured profiles table with optimized auth patterns.
+**One-liner:** angular 21 app scaffolded with Supabase JS client, Tailwind CSS v4, German locale, and RLS-secured profiles table with optimized auth patterns.
 
 ## What Was Built
 
 This plan established the complete development infrastructure for the Mahlzeit Planer application:
 
-1. **Angular 19 Project**: Scaffolded with standalone components (default), SSR disabled for SPA deployment, routing enabled, and German locale configured.
+1. **angular 21 Project**: Scaffolded with standalone components (default), SSR disabled for SPA deployment, routing enabled, and German locale configured.
 
 2. **Supabase Integration**: Installed Supabase JS client (v2.95.3) and created a centralized SupabaseService with authentication methods (signUp, signIn, signOut, getUser, getSession, onAuthStateChange).
 
@@ -100,7 +100,7 @@ None - plan executed exactly as written. All tasks completed successfully withou
 
 ### Created (25 files)
 **Core Application:**
-- `package.json` - Dependencies including Angular 19, Supabase JS, Tailwind CSS
+- `package.json` - Dependencies including angular 21, Supabase JS, Tailwind CSS
 - `angular.json` - Angular CLI configuration with German locale and file replacements
 - `tsconfig.json`, `tsconfig.app.json`, `tsconfig.spec.json` - TypeScript configuration
 - `postcss.config.js` - Tailwind CSS v4 PostCSS integration

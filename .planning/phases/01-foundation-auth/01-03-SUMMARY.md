@@ -224,7 +224,7 @@ All verification criteria passed during human verification:
 
 This plan completes **Phase 1: Foundation & Auth**. All three plans delivered:
 
-1. **Plan 01**: Angular 19 scaffolding, Supabase integration, Tailwind CSS, RLS-secured database
+1. **Plan 01**: angular 21 scaffolding, Supabase integration, Tailwind CSS, RLS-secured database
 2. **Plan 02**: Authentication pages with reactive forms, route guards, German validation
 3. **Plan 03**: Responsive app shell, navigation, complete routing, placeholder pages
 

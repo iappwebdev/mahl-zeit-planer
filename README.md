@@ -20,7 +20,7 @@ Die Familie muss nie wieder täglich überlegen, was es zum Abendessen gibt — 
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Angular 19 (Standalone Components, Signals)
+- **Frontend**: Angular 21 (Standalone Components, Signals)
 - **Backend**: Supabase (PostgreSQL + Auth + Realtime)
 - **Styling**: Tailwind CSS v4 + Angular Material
 - **Hosting**: Vercel
