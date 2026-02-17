@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 ## Current Position
 
 Phase: 3 of 4 (Meal Planning) - IN PROGRESS
-Plan: 1 of 3 in current phase - COMPLETED
-Status: 03-01 complete — data foundation ready; calendar UI (03-02) is next
-Last activity: 2026-02-17 — Completed 03-01-PLAN.md
+Plan: 2 of 3 in current phase - COMPLETED
+Status: 03-02 complete — calendar UI ready; generation algorithm (03-03) is next
+Last activity: 2026-02-17 — Completed 03-02-PLAN.md
 
-Progress: [█████████░] 60%
+Progress: [██████████] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 8.1 minutes
+- Total plans completed: 7
+- Average duration: 6.5 minutes
 - Total execution time: 0.8 hours
 
 **By Phase:**
@@ -29,10 +29,10 @@ Progress: [█████████░] 60%
 |-------|-------|--------|----------|
 | 01    | 3     | 43.5m  | 14.5m    |
 | 02    | 2     | 4.6m   | 2.3m     |
-| 03    | 1     | 8.0m   | 8.0m     |
+| 03    | 2     | 11.5m  | 5.75m    |
 
 **Recent Trend:**
-- Last 5 plans: 35m, 1.4m, 3.25m, 8.0m
+- Last 5 plans: 1.4m, 3.25m, 8.0m, 3.5m
 - Trend: Consistent sub-10min execution in Phase 2 & 3
 
 *Updated after each plan completion*
@@ -44,6 +44,7 @@ Progress: [█████████░] 60%
 - 2026-02-16: 02-01-PLAN.md (Dishes Database & Service Layer) - 1.4m - 2 tasks
 - 2026-02-16: 02-02-PLAN.md (Dish Management UI) - 3.25m - 2 tasks
 - 2026-02-17: 03-01-PLAN.md (Meal Planning Data Foundation) - 8.0m - 2 tasks
+- 2026-02-17: 03-02-PLAN.md (Weekly Calendar UI) - 3.5m - 2 tasks
 
 ## Accumulated Context
 
@@ -78,6 +79,10 @@ Recent decisions affecting current work:
 - **[03-01]** DEFAULT_CATEGORY_PREFERENCES: Fleisch=2, Vegetarisch=2, Fisch=1 (5 assigned, 2 for any)
 - **[03-01]** getOrCreateWeeklyPlan uses maybeSingle() + explicit insert — clean single-row return
 - **[03-01]** getRecentDishIds uses !inner join syntax — filters dish history through plan ownership
+- **[03-02]** getOrCreateWeeklyPlan called lazily on first assignment — avoids creating empty plans for browsed weeks
+- **[03-02]** effect() in constructor triggers loadWeek() on currentWeekStart signal change (covers nav + init)
+- **[03-02]** DishService loaded by DishPickerComponent autonomously — not passed from MealPlanComponent
+- **[03-02]** Past week guard inside openDishPicker() method, not in template click binding
 
 ### Pending Todos
 
@@ -93,7 +98,7 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-17 (execute-phase)
-Stopped at: Completed 03-01-PLAN.md (Meal Planning Data Foundation)
-Resume file: .planning/phases/03-meal-planning/03-01-SUMMARY.md
+Stopped at: Completed 03-02-PLAN.md (Weekly Calendar UI)
+Resume file: .planning/phases/03-meal-planning/03-02-SUMMARY.md
 Dev server: Running at http://localhost:4200
-Next action: Execute 03-02-PLAN.md (Calendar UI)
+Next action: Execute 03-03-PLAN.md (Generation Algorithm)
