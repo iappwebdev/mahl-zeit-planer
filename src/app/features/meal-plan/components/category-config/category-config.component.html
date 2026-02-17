@@ -1,0 +1,60 @@
+<div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+
+  <!-- Header -->
+  <div class="flex items-center gap-2 mb-3">
+    <span class="font-bold text-gray-800 text-sm">Kategorie-Verteilung</span>
+    @if (isSaving()) {
+      <span class="text-xs text-gray-400">Speichern...</span>
+    }
+  </div>
+
+  <!-- Category rows -->
+  <div class="space-y-2">
+    @for (category of categories; track category) {
+      <div class="flex items-center gap-3">
+
+        <!-- Category badge -->
+        <span [class]="'px-2 py-0.5 rounded-full text-xs font-medium w-24 text-center flex-shrink-0 ' + categoryBadgeClass(category)">
+          {{ category }}
+        </span>
+
+        <!-- Number input -->
+        <input
+          type="number"
+          [value]="preferences()[category]"
+          (change)="updateCount(category, +$any($event.target).value)"
+          min="0"
+          max="7"
+          step="1"
+          class="w-16 px-2 py-1 text-sm border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+
+        <!-- Available count hint + warning icon -->
+        <div class="flex items-center gap-1">
+          <span class="text-xs text-gray-400">({{ availableCounts()[category] }} verfugbar)</span>
+          @if (preferences()[category] > availableCounts()[category]) {
+            <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="Zu wenig Gerichte in dieser Kategorie">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          }
+        </div>
+
+      </div>
+    }
+  </div>
+
+  <!-- Summary line -->
+  <div class="mt-3 pt-3 border-t border-gray-200">
+    <span class="text-xs text-gray-600">
+      {{ totalConfigured() }} Tage nach Kategorie, {{ remainingDays() }} Tage frei
+    </span>
+
+    <!-- Warning if total exceeds 7 -->
+    @if (isTotalExceeded()) {
+      <div class="mt-1 text-xs text-red-600 font-medium">
+        Summe ubersteigt 7 Tage
+      </div>
+    }
+  </div>
+
+</div>
