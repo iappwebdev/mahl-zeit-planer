@@ -1,9 +1,359 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  effect,
+  WritableSignal,
+  Signal,
+  OnInit
+} from '@angular/core';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MealPlanService } from './services/meal-plan.service';
+import { Dish } from '../dishes/models/dish.model';
+import {
+  DayOfWeek,
+  MealAssignment,
+  DAY_LABELS,
+  getWeekStart,
+  getWeekDates,
+  formatDateGerman
+} from './models/meal-plan.model';
+import { DishPickerComponent } from './components/dish-picker/dish-picker.component';
 
+/** Shape of each day card rendered in the template */
+interface DayCard {
+  dayOfWeek: DayOfWeek;
+  dayLabel: string;       // e.g. "Montag, 17. Feb."
+  date: string;           // ISO date string
+  assignment: MealAssignment | null;
+  isToday: boolean;
+}
+
+/**
+ * Weekly calendar component — the primary meal planning interface.
+ * Shows Mon-Sun day cards, supports manual dish assignment via bottom sheet,
+ * week navigation, and a category distribution summary.
+ */
 @Component({
   selector: 'app-meal-plan',
-  imports: [],
+  imports: [MatBottomSheetModule, MatSnackBarModule],
   templateUrl: './meal-plan.component.html',
   styleUrl: './meal-plan.component.css'
 })
-export class MealPlanComponent {}
+export class MealPlanComponent implements OnInit {
+  private mealPlanService = inject(MealPlanService);
+  private bottomSheet = inject(MatBottomSheet);
+  private snackBar = inject(MatSnackBar);
+
+  // ---------------------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------------------
+
+  /** ISO date string for the Monday of the currently viewed week */
+  currentWeekStart: WritableSignal<string> = signal(getWeekStart(new Date()));
+
+  /** Map of dayOfWeek -> assignment for the current week */
+  assignments: WritableSignal<Map<DayOfWeek, MealAssignment>> = signal(new Map());
+
+  /** ID of the current weekly_plan DB record (null if no plan exists yet) */
+  weeklyPlanId: WritableSignal<string | null> = signal(null);
+
+  isLoading: WritableSignal<boolean> = signal(false);
+
+  // ---------------------------------------------------------------------------
+  // Derived / computed
+  // ---------------------------------------------------------------------------
+
+  /** 7 ISO date strings Mon-Sun for the currently viewed week */
+  weekDates: Signal<string[]> = computed(() => getWeekDates(this.currentWeekStart()));
+
+  /** Today's ISO date string for "isToday" highlighting */
+  private todayStr = getWeekStart(new Date()); // reuse week calc — actually just today:
+  private todayIso = new Date().toISOString().slice(0, 10);
+
+  /** Array of 7 day card objects for the template */
+  dayCards: Signal<DayCard[]> = computed(() => {
+    const dates = this.weekDates();
+    const map = this.assignments();
+    return dates.map((date, i) => {
+      const dayOfWeek = i as DayOfWeek;
+      const dayName = DAY_LABELS[dayOfWeek];
+      const dateShort = formatDateGerman(date);
+      return {
+        dayOfWeek,
+        dayLabel: `${dayName}, ${dateShort}`,
+        date,
+        assignment: map.get(dayOfWeek) ?? null,
+        isToday: date === this.todayIso
+      };
+    });
+  });
+
+  /** Count of each category assigned this week */
+  categoryDistribution: Signal<Record<string, number>> = computed(() => {
+    const counts: Record<string, number> = {};
+    const map = this.assignments();
+    map.forEach(assignment => {
+      const cat = assignment.dish?.category;
+      if (cat) {
+        counts[cat] = (counts[cat] ?? 0) + 1;
+      }
+    });
+    return counts;
+  });
+
+  /** Number of days with no assignment this week */
+  freeDays: Signal<number> = computed(() => 7 - this.assignments().size);
+
+  /** ISO date string for this week's Monday */
+  private thisWeekStart = getWeekStart(new Date());
+
+  /** ISO date string for next week's Monday */
+  private nextWeekStart = (() => {
+    const d = new Date(this.thisWeekStart + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() + 7);
+    return d.toISOString().slice(0, 10);
+  })();
+
+  /** True if the viewed week is past (before current week) — read-only mode */
+  isPastWeek: Signal<boolean> = computed(() => this.currentWeekStart() < this.thisWeekStart);
+
+  /** True if the viewed week is current or next (editable) */
+  isCurrentOrFutureWeek: Signal<boolean> = computed(() => !this.isPastWeek());
+
+  /** Always allow going back (past weeks are viewable) */
+  canGoBack: Signal<boolean> = computed(() => true);
+
+  /** Only allow navigating up to next week */
+  canGoForward: Signal<boolean> = computed(() => this.currentWeekStart() < this.nextWeekStart);
+
+  /** Display string for the week header, e.g. "KW 8 - 16. Feb. - 22. Feb. 2026" */
+  weekHeaderLabel: Signal<string> = computed(() => {
+    const dates = this.weekDates();
+    const firstDate = new Date(dates[0] + 'T00:00:00Z');
+    const lastDate = new Date(dates[6] + 'T00:00:00Z');
+
+    // ISO week number
+    const kw = this.getISOWeekNumber(firstDate);
+
+    const firstFormatted = firstDate.toLocaleDateString('de-DE', {
+      day: 'numeric',
+      month: 'short',
+      timeZone: 'UTC'
+    });
+    const lastFormatted = lastDate.toLocaleDateString('de-DE', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'UTC'
+    });
+
+    return `KW ${kw} \u2013 ${firstFormatted} \u2013 ${lastFormatted}`;
+  });
+
+  /** Summary chips for category distribution display */
+  distributionSummary: Signal<Array<{ label: string; colorClass: string }>> = computed(() => {
+    const dist = this.categoryDistribution();
+    const free = this.freeDays();
+    const result: Array<{ label: string; colorClass: string }> = [];
+
+    if ((dist['Fleisch'] ?? 0) > 0) {
+      result.push({ label: `${dist['Fleisch']}x Fleisch`, colorClass: 'bg-red-100 text-red-800' });
+    }
+    if ((dist['Vegetarisch'] ?? 0) > 0) {
+      result.push({ label: `${dist['Vegetarisch']}x Vegetarisch`, colorClass: 'bg-green-100 text-green-800' });
+    }
+    if ((dist['Fisch'] ?? 0) > 0) {
+      result.push({ label: `${dist['Fisch']}x Fisch`, colorClass: 'bg-blue-100 text-blue-800' });
+    }
+    if (free > 0) {
+      result.push({ label: `${free}x frei`, colorClass: 'bg-gray-100 text-gray-600' });
+    }
+
+    return result;
+  });
+
+  // ---------------------------------------------------------------------------
+  // Lifecycle
+  // ---------------------------------------------------------------------------
+
+  constructor() {
+    // Reload week data whenever currentWeekStart changes (after init)
+    effect(() => {
+      const weekStart = this.currentWeekStart();
+      // Effect runs after init — safe to call load
+      this.loadWeek(weekStart);
+    });
+  }
+
+  ngOnInit(): void {
+    // Initial load triggered via effect in constructor
+  }
+
+  // ---------------------------------------------------------------------------
+  // Data loading
+  // ---------------------------------------------------------------------------
+
+  private async loadWeek(weekStart: string): Promise<void> {
+    this.isLoading.set(true);
+    this.assignments.set(new Map());
+    this.weeklyPlanId.set(null);
+
+    try {
+      const assignmentList = await this.mealPlanService.getAssignmentsForWeek(weekStart);
+      const map = new Map<DayOfWeek, MealAssignment>();
+      for (const a of assignmentList) {
+        map.set(a.day_of_week, a);
+      }
+      this.assignments.set(map);
+    } catch (err: any) {
+      this.snackBar.open(
+        'Fehler beim Laden des Wochenplans: ' + (err.message ?? 'Unbekannter Fehler'),
+        'OK',
+        { duration: 4000 }
+      );
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Week navigation
+  // ---------------------------------------------------------------------------
+
+  navigateWeek(direction: -1 | 1): void {
+    if (direction === 1 && !this.canGoForward()) return;
+
+    const current = new Date(this.currentWeekStart() + 'T00:00:00Z');
+    current.setUTCDate(current.getUTCDate() + direction * 7);
+    this.currentWeekStart.set(current.toISOString().slice(0, 10));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Dish assignment
+  // ---------------------------------------------------------------------------
+
+  openDishPicker(dayOfWeek: DayOfWeek): void {
+    if (this.isPastWeek()) return;
+
+    const currentAssignment = this.assignments().get(dayOfWeek);
+    const ref = this.bottomSheet.open(DishPickerComponent, {
+      data: { currentDishId: currentAssignment?.dish_id }
+    });
+
+    ref.afterDismissed().subscribe((result: Dish | null | undefined) => {
+      if (result === undefined) {
+        // Dismissed without action
+        return;
+      }
+
+      if (result === null) {
+        // Clear action
+        this.removeDish(dayOfWeek);
+      } else {
+        // Dish selected
+        this.assignDish(dayOfWeek, result);
+      }
+    });
+  }
+
+  private async assignDish(dayOfWeek: DayOfWeek, dish: Dish): Promise<void> {
+    const previousAssignments = new Map(this.assignments());
+
+    // Optimistic update — create a temporary assignment object
+    const optimisticAssignment: MealAssignment = {
+      id: 'optimistic-' + Date.now(),
+      weekly_plan_id: this.weeklyPlanId() ?? '',
+      day_of_week: dayOfWeek,
+      dish_id: dish.id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      dish
+    };
+    this.assignments.update(map => {
+      const updated = new Map(map);
+      updated.set(dayOfWeek, optimisticAssignment);
+      return updated;
+    });
+
+    try {
+      // Ensure a weekly plan exists for this week
+      let planId = this.weeklyPlanId();
+      if (!planId) {
+        const plan = await this.mealPlanService.getOrCreateWeeklyPlan(this.currentWeekStart());
+        planId = plan.id;
+        this.weeklyPlanId.set(planId);
+      }
+
+      // Persist the assignment
+      const saved = await this.mealPlanService.assignDish(planId, dayOfWeek, dish.id);
+
+      // Replace optimistic with real data
+      this.assignments.update(map => {
+        const updated = new Map(map);
+        updated.set(dayOfWeek, saved);
+        return updated;
+      });
+    } catch (err: any) {
+      // Rollback
+      this.assignments.set(previousAssignments);
+      this.snackBar.open(
+        'Fehler beim Zuweisen: ' + (err.message ?? 'Unbekannter Fehler'),
+        'OK',
+        { duration: 4000 }
+      );
+    }
+  }
+
+  private async removeDish(dayOfWeek: DayOfWeek): Promise<void> {
+    const currentAssignment = this.assignments().get(dayOfWeek);
+    if (!currentAssignment) return;
+
+    const previousAssignments = new Map(this.assignments());
+
+    // Optimistic remove
+    this.assignments.update(map => {
+      const updated = new Map(map);
+      updated.delete(dayOfWeek);
+      return updated;
+    });
+
+    // Skip DB call if this was an optimistic-only assignment (no real ID yet)
+    if (currentAssignment.id.startsWith('optimistic-')) return;
+
+    try {
+      await this.mealPlanService.removeDish(currentAssignment.id);
+    } catch (err: any) {
+      // Rollback
+      this.assignments.set(previousAssignments);
+      this.snackBar.open(
+        'Fehler beim Entfernen: ' + (err.message ?? 'Unbekannter Fehler'),
+        'OK',
+        { duration: 4000 }
+      );
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  /** Calculate ISO 8601 week number for a Date object */
+  private getISOWeekNumber(date: Date): number {
+    const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    // Set to nearest Thursday (ISO week starts on Monday)
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  }
+
+  /** Returns the category badge CSS classes for a given category string */
+  categoryBadgeClass(category: string | undefined): string {
+    if (category === 'Fisch') return 'bg-blue-100 text-blue-800';
+    if (category === 'Fleisch') return 'bg-red-100 text-red-800';
+    if (category === 'Vegetarisch') return 'bg-green-100 text-green-800';
+    return 'bg-gray-100 text-gray-600';
+  }
+}

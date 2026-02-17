@@ -1,7 +1,170 @@
-<div class="flex flex-col items-center justify-center py-16">
-  <div class="bg-white rounded-2xl shadow-md p-8 text-center max-w-sm">
-    <div class="text-5xl mb-4">📅</div>
-    <h2 class="text-xl font-semibold text-green-800 mb-2">Wochenplan</h2>
-    <p class="text-gray-600">Kommt bald! Hier wird bald dein Wochenplan erscheinen.</p>
+<div class="p-4 max-w-4xl mx-auto">
+
+  <!-- Week Navigation Header -->
+  <div class="flex items-center justify-between mb-3">
+
+    <!-- Left arrow (always enabled — past weeks are viewable) -->
+    <button
+      type="button"
+      (click)="navigateWeek(-1)"
+      class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+      aria-label="Vorherige Woche"
+    >
+      <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+
+    <!-- Week label -->
+    <div class="flex flex-col items-center gap-1">
+      <span class="font-semibold text-gray-800 text-sm text-center">{{ weekHeaderLabel() }}</span>
+      @if (isPastWeek()) {
+        <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">Nur Ansicht</span>
+      }
+    </div>
+
+    <!-- Right arrow (disabled when at max future week) -->
+    <button
+      type="button"
+      (click)="navigateWeek(1)"
+      [disabled]="!canGoForward()"
+      class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors"
+      [class.hover:bg-gray-100]="canGoForward()"
+      [class.opacity-30]="!canGoForward()"
+      [class.cursor-not-allowed]="!canGoForward()"
+      aria-label="Nächste Woche"
+    >
+      <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+
   </div>
+
+  <!-- Category Distribution Summary -->
+  <div class="flex flex-wrap gap-2 mb-4">
+    @if (isLoading()) {
+      <span class="text-sm text-gray-400">Lade Wochenplan...</span>
+    } @else if (distributionSummary().length > 0) {
+      @for (item of distributionSummary(); track item.label) {
+        <span [class]="'px-3 py-1 rounded-full text-sm font-medium ' + item.colorClass">
+          {{ item.label }}
+        </span>
+      }
+    } @else {
+      <span class="text-sm text-gray-400">Noch keine Gerichte diese Woche</span>
+    }
+  </div>
+
+  <!-- Day Cards -->
+  <div class="space-y-2">
+    @for (card of dayCards(); track card.dayOfWeek) {
+
+      @if (card.assignment) {
+        <!-- Filled Day Card -->
+        <div
+          class="bg-white rounded-lg shadow-sm p-4 transition-shadow"
+          [class.border-l-4]="card.isToday"
+          [class.border-green-500]="card.isToday"
+          [class.hover:shadow-md]="isCurrentOrFutureWeek()"
+        >
+          <div class="flex items-center gap-3">
+
+            <!-- Day label -->
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-gray-800 text-sm mb-1">{{ card.dayLabel }}</div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <!-- Dish name -->
+                <span class="font-medium text-gray-700 text-sm truncate">{{ card.assignment.dish?.name }}</span>
+
+                <!-- Category badge -->
+                <span
+                  class="px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
+                  [class.bg-blue-100]="card.assignment.dish?.category === 'Fisch'"
+                  [class.text-blue-800]="card.assignment.dish?.category === 'Fisch'"
+                  [class.bg-red-100]="card.assignment.dish?.category === 'Fleisch'"
+                  [class.text-red-800]="card.assignment.dish?.category === 'Fleisch'"
+                  [class.bg-green-100]="card.assignment.dish?.category === 'Vegetarisch'"
+                  [class.text-green-800]="card.assignment.dish?.category === 'Vegetarisch'"
+                >
+                  {{ card.assignment.dish?.category }}
+                </span>
+
+                <!-- Favorite heart (display only) -->
+                @if (card.assignment.dish?.is_favorite) {
+                  <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                  </svg>
+                }
+              </div>
+            </div>
+
+            <!-- Swap/edit icon (only for editable weeks) -->
+            @if (isCurrentOrFutureWeek()) {
+              <button
+                type="button"
+                (click)="openDishPicker(card.dayOfWeek)"
+                class="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0"
+                aria-label="Gericht tauschen"
+              >
+                <!-- Pencil/swap icon -->
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+              </button>
+            }
+
+          </div>
+        </div>
+
+      } @else {
+        <!-- Empty Day Card -->
+        <div
+          class="bg-white rounded-lg shadow-sm p-4 transition-shadow"
+          [class.border-l-4]="card.isToday"
+          [class.border-green-500]="card.isToday"
+          [class.hover:shadow-md]="isCurrentOrFutureWeek()"
+          [class.cursor-pointer]="isCurrentOrFutureWeek()"
+          (click)="openDishPicker(card.dayOfWeek)"
+        >
+          <div class="flex items-center gap-3">
+
+            <!-- Day label + empty indicator -->
+            <div class="flex-1">
+              <div class="font-bold text-gray-800 text-sm mb-1">{{ card.dayLabel }}</div>
+              <div class="text-sm text-gray-400 italic">Kein Gericht</div>
+            </div>
+
+            <!-- Plus icon (only for editable weeks) -->
+            @if (isCurrentOrFutureWeek()) {
+              <div class="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+            }
+
+          </div>
+        </div>
+      }
+
+    }
+  </div>
+
+  <!-- Generate Plan Button (placeholder — will be activated in Plan 03) -->
+  <div class="mt-6 flex justify-center">
+    <button
+      type="button"
+      disabled
+      class="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold opacity-50 cursor-not-allowed flex items-center gap-2"
+      title="Plan generieren wird in einem zukünftigen Update aktiviert"
+    >
+      <!-- Magic wand / stars icon -->
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+      </svg>
+      Plan generieren
+    </button>
+  </div>
+
 </div>
