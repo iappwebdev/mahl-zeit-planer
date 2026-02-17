@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Die Familie muss nie wieder täglich überlegen, was es zum Abendessen gibt — ein Klick generiert einen ausgewogenen Wochenplan aus dem eigenen Gerichtepool.
-**Current focus:** Phase 3 - Meal Planning - COMPLETE
+**Current focus:** Phase 4 - Realtime Collaboration - IN PROGRESS
 
 ## Current Position
 
-Phase: 3 of 4 (Meal Planning) - COMPLETE
-Plan: 3 of 3 in current phase - COMPLETED
-Status: 03-03 complete — generation algorithm, category config, and full integration delivered; Phase 3 done
-Last activity: 2026-02-17 — Completed 03-03-PLAN.md
+Phase: 4 of 4 (Realtime Collaboration) - IN PROGRESS
+Plan: 1 of 3 in current phase - COMPLETED
+Status: 04-01 complete — household database foundation, dual-mode RLS, HouseholdService signals, household-aware DishService/MealPlanService delivered
+Last activity: 2026-02-17 — Completed 04-01-PLAN.md
 
-Progress: [████████████] 80%
+Progress: [██████████████] 87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 6.2 minutes
+- Total plans completed: 9
+- Average duration: 5.9 minutes
 - Total execution time: 0.9 hours
 
 **By Phase:**
@@ -30,10 +30,11 @@ Progress: [████████████] 80%
 | 01    | 3     | 43.5m  | 14.5m    |
 | 02    | 2     | 4.6m   | 2.3m     |
 | 03    | 3     | 15.7m  | 5.2m     |
+| 04    | 1     | 4.0m   | 4.0m     |
 
 **Recent Trend:**
-- Last 5 plans: 3.25m, 8.0m, 3.5m, 4.2m
-- Trend: Consistent sub-10min execution in Phase 2 & 3
+- Last 5 plans: 8.0m, 3.5m, 4.2m, 4.0m
+- Trend: Consistent sub-10min execution
 
 *Updated after each plan completion*
 
@@ -46,6 +47,7 @@ Progress: [████████████] 80%
 - 2026-02-17: 03-01-PLAN.md (Meal Planning Data Foundation) - 8.0m - 2 tasks
 - 2026-02-17: 03-02-PLAN.md (Weekly Calendar UI) - 3.5m - 2 tasks
 - 2026-02-17: 03-03-PLAN.md (Generation Algorithm) - 4.2m - 2 tasks
+- 2026-02-17: 04-01-PLAN.md (Household Database Foundation) - 4.0m - 2 tasks
 
 ## Accumulated Context
 
@@ -88,6 +90,12 @@ Recent decisions affecting current work:
 - **[03-03]** 3x favorite weighting via pool duplication (not priority queue) — simple, correct, O(n) overhead
 - **[03-03]** 3-phase algorithm: category slots first, then any-category leftovers, then repeats as last resort
 - **[03-03]** CategoryConfigComponent import path uses 3 levels up (../../../dishes/) not 4
+- **[04-01]** Dual-mode RLS pattern: solo (user_id) OR (household_id IS NOT NULL AND membership) — backward-compatible
+- **[04-01]** Data migration on createHousehold/acceptInvite: existing solo dishes/plans updated to household_id
+- **[04-01]** SECURITY DEFINER triggers for activity_log: cross-table access to profiles, display_name embedded in row
+- **[04-01]** display_name written at INSERT time by trigger — Realtime payload carries it without JOIN
+- **[04-01]** Category preferences remain user-scoped (not household) — defers "whose preferences" question
+- **[04-01]** Partial unique index idx_weekly_plans_household_week: one plan per household per week
 
 ### Pending Todos
 
@@ -102,7 +110,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-17 (discuss-phase)
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-realtime-collaboration/04-CONTEXT.md
-Next action: Plan Phase 4 (Realtime Collaboration)
+Last session: 2026-02-17 (execute-phase)
+Stopped at: Completed 04-01-PLAN.md
+Resume file: .planning/phases/04-realtime-collaboration/04-01-SUMMARY.md
+Next action: Execute 04-02-PLAN.md (Household Settings UI)
