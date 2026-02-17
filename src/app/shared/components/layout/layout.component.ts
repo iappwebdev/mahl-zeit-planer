@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { HouseholdService } from '../../../core/services/household.service';
 
 @Component({
   selector: 'app-layout',
@@ -8,4 +10,20 @@ import { NavbarComponent } from '../navbar/navbar.component';
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css'
 })
-export class LayoutComponent {}
+export class LayoutComponent implements OnInit {
+  private readonly householdService = inject(HouseholdService);
+  private readonly snackBar = inject(MatSnackBar);
+
+  async ngOnInit(): Promise<void> {
+    const inviteToken = sessionStorage.getItem('invite_token');
+    if (inviteToken) {
+      sessionStorage.removeItem('invite_token');
+      try {
+        await this.householdService.acceptInvite(inviteToken);
+        this.snackBar.open('Du bist dem Haushalt beigetreten!', '', { duration: 4000 });
+      } catch {
+        this.snackBar.open('Einladung konnte nicht angenommen werden.', '', { duration: 4000 });
+      }
+    }
+  }
+}
