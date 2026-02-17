@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  supabaseUrl: 'YOUR_SUPABASE_URL',
-  supabaseKey: 'YOUR_SUPABASE_ANON_KEY',
+  supabaseUrl: 'https://nftnfezydrmcnwrqbznc.supabase.co',
+  supabasePublishableKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdG5mZXp5ZHJtY253cnFiem5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNDY3OTYsImV4cCI6MjA4NjgyMjc5Nn0.znbDaGKoQMRaK-im_Kn_WzILVFIbyVFtPfb_v36aBGg',
 };
