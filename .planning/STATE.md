@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 ## Current Position
 
 Phase: 4 of 4 (Realtime Collaboration) - IN PROGRESS
-Plan: 1 of 3 in current phase - COMPLETED
-Status: 04-01 complete — household database foundation, dual-mode RLS, HouseholdService signals, household-aware DishService/MealPlanService delivered
-Last activity: 2026-02-17 — Completed 04-01-PLAN.md
+Plan: 2 of 3 in current phase - COMPLETED
+Status: 04-02 complete — settings page with household panel, accept-invite page, Edge Function invite-user, navigation updated
+Last activity: 2026-02-17 — Completed 04-02-PLAN.md
 
-Progress: [██████████████] 87%
+Progress: [███████████████] 93%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 5.9 minutes
-- Total execution time: 0.9 hours
+- Total plans completed: 10
+- Average duration: 5.7 minutes
+- Total execution time: 0.95 hours
 
 **By Phase:**
 
@@ -30,7 +30,7 @@ Progress: [██████████████] 87%
 | 01    | 3     | 43.5m  | 14.5m    |
 | 02    | 2     | 4.6m   | 2.3m     |
 | 03    | 3     | 15.7m  | 5.2m     |
-| 04    | 1     | 4.0m   | 4.0m     |
+| 04    | 2     | 8.0m   | 4.0m     |
 
 **Recent Trend:**
 - Last 5 plans: 8.0m, 3.5m, 4.2m, 4.0m
@@ -48,6 +48,7 @@ Progress: [██████████████] 87%
 - 2026-02-17: 03-02-PLAN.md (Weekly Calendar UI) - 3.5m - 2 tasks
 - 2026-02-17: 03-03-PLAN.md (Generation Algorithm) - 4.2m - 2 tasks
 - 2026-02-17: 04-01-PLAN.md (Household Database Foundation) - 4.0m - 2 tasks
+- 2026-02-17: 04-02-PLAN.md (Household Settings UI & Invite System) - 4.0m - 2 tasks
 
 ## Accumulated Context
 
@@ -96,6 +97,10 @@ Recent decisions affecting current work:
 - **[04-01]** display_name written at INSERT time by trigger — Realtime payload carries it without JOIN
 - **[04-01]** Category preferences remain user-scoped (not household) — defers "whose preferences" question
 - **[04-01]** Partial unique index idx_weekly_plans_household_week: one plan per household per week
+- **[04-02]** SupabaseService.supabaseUrl getter added to expose project URL (SupabaseClient.supabaseUrl is protected)
+- **[04-02]** SessionStorage for invite token persistence through registration flow (cleared on tab close)
+- **[04-02]** Edge Function validates invite token before calling inviteUserByEmail (prevents spam/abuse)
+- **[04-02]** AcceptInviteComponent stub created in Task 1 to enable route compilation, fleshed out in Task 2
 
 ### Pending Todos
 
@@ -111,6 +116,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-17 (execute-phase)
-Stopped at: Completed 04-01-PLAN.md
-Resume file: .planning/phases/04-realtime-collaboration/04-01-SUMMARY.md
-Next action: Execute 04-02-PLAN.md (Household Settings UI)
+Stopped at: Completed 04-02-PLAN.md
+Resume file: .planning/phases/04-realtime-collaboration/04-02-SUMMARY.md
+Next action: Execute 04-03-PLAN.md (Realtime Collaboration Sync)
