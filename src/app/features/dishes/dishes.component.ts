@@ -1,9 +1,11 @@
-import { Component, signal, computed, inject, OnInit, DestroyRef } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, DestroyRef, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DishService } from './services/dish.service';
 import { Dish, DishCategory, CreateDishPayload } from './models/dish.model';
+import { RealtimeService } from '../../core/services/realtime.service';
+import { SupabaseService } from '../../core/services/supabase.service';
 
 /**
  * Dish management page component
@@ -20,6 +22,11 @@ export class DishesComponent implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private realtime = inject(RealtimeService);
+  private supabaseService = inject(SupabaseService);
+
+  /** Current user ID — set in ngOnInit, used to skip own-change toasts */
+  private currentUserId: string | null = null;
 
   // State signals
   private allDishes = signal<Dish[]>([]);
@@ -74,7 +81,44 @@ export class DishesComponent implements OnInit {
     category: ['', [Validators.required]]
   });
 
+  constructor() {
+    // Effect 1: Reload dish list whenever a dish change arrives from Realtime
+    effect(() => {
+      const change = this.realtime.dishChange();
+      if (change) {
+        this.loadDishes();
+      }
+    });
+
+    // Effect 2: Show person-named toast for dish changes made by other household members
+    effect(() => {
+      const activity = this.realtime.activityChange();
+      if (activity && activity.new?.entity_type === 'dish') {
+        // Skip changes made by the current user
+        if (activity.new.user_id !== this.currentUserId) {
+          const displayName = activity.new.display_name || 'Jemand';
+          const entityName = activity.new.entity_name || 'Gericht';
+          const action = activity.new.action;
+
+          let message = '';
+          switch (action) {
+            case 'dish_added': message = `${displayName} hat ${entityName} hinzugefuegt`; break;
+            case 'dish_updated': message = `${displayName} hat ${entityName} geaendert`; break;
+            case 'dish_deleted': message = `${displayName} hat ${entityName} entfernt`; break;
+          }
+          if (message) {
+            this.snackBar.open(message, '', { duration: 3000 });
+          }
+        }
+      }
+    });
+  }
+
   ngOnInit(): void {
+    // Load current user ID for toast filtering (skip own changes)
+    this.supabaseService.client.auth.getUser().then(({ data }) => {
+      this.currentUserId = data.user?.id ?? null;
+    });
     this.loadDishes();
   }
 

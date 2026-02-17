@@ -12,6 +12,8 @@ import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-s
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MealPlanService } from './services/meal-plan.service';
 import { MealPlanGeneratorService } from './services/meal-plan-generator.service';
+import { RealtimeService } from '../../core/services/realtime.service';
+import { SupabaseService } from '../../core/services/supabase.service';
 import { Dish } from '../dishes/models/dish.model';
 import {
   DayOfWeek,
@@ -49,6 +51,11 @@ export class MealPlanComponent implements OnInit {
   private generatorService = inject(MealPlanGeneratorService);
   private bottomSheet = inject(MatBottomSheet);
   private snackBar = inject(MatSnackBar);
+  private realtime = inject(RealtimeService);
+  private supabaseService = inject(SupabaseService);
+
+  /** Current user ID — set in ngOnInit, used to skip own-change toasts */
+  private currentUserId: string | null = null;
 
   // ---------------------------------------------------------------------------
   // State
@@ -200,9 +207,43 @@ export class MealPlanComponent implements OnInit {
       // Effect runs after init — safe to call load
       this.loadWeek(weekStart);
     });
+
+    // Effect: Reload current week whenever a meal assignment change arrives from Realtime
+    effect(() => {
+      const change = this.realtime.assignmentChange();
+      if (change) {
+        this.loadWeek(this.currentWeekStart());
+      }
+    });
+
+    // Effect: Show person-named toast for assignment changes made by other household members
+    effect(() => {
+      const activity = this.realtime.activityChange();
+      if (activity && (activity.new?.entity_type === 'meal_assignment' || activity.new?.entity_type === 'weekly_plan')) {
+        if (activity.new.user_id !== this.currentUserId) {
+          const displayName = activity.new.display_name || 'Jemand';
+          const entityName = activity.new.entity_name || 'Wochenplan';
+          const action = activity.new.action;
+
+          let message = '';
+          switch (action) {
+            case 'assignment_changed': message = `${displayName} hat ${entityName} geaendert`; break;
+            case 'plan_generated': message = `${displayName} hat Wochenplan generiert`; break;
+            default: message = `${displayName} hat ${entityName} geaendert`; break;
+          }
+          if (message) {
+            this.snackBar.open(message, '', { duration: 3000 });
+          }
+        }
+      }
+    });
   }
 
   ngOnInit(): void {
+    // Load current user ID for toast filtering (skip own changes)
+    this.supabaseService.client.auth.getUser().then(({ data }) => {
+      this.currentUserId = data.user?.id ?? null;
+    });
     // Initial load triggered via effect in constructor
   }
 
