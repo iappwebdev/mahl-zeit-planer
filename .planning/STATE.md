@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Die Familie muss nie wieder täglich überlegen, was es zum Abendessen gibt — ein Klick generiert einen ausgewogenen Wochenplan aus dem eigenen Gerichtepool.
-**Current focus:** Phase 2 - Dish Management
+**Current focus:** Phase 3 - Meal Planning
 
 ## Current Position
 
-Phase: 2 of 4 (Dish Management) - COMPLETED
-Plan: 2 of 2 in current phase - COMPLETED
-Status: Phase 2 Complete - Ready for verification
-Last activity: 2026-02-16 — Completed 02-02-PLAN.md
+Phase: 3 of 4 (Meal Planning) - IN PROGRESS
+Plan: 1 of 3 in current phase - COMPLETED
+Status: 03-01 complete — data foundation ready; calendar UI (03-02) is next
+Last activity: 2026-02-17 — Completed 03-01-PLAN.md
 
-Progress: [████████░░] 50%
+Progress: [█████████░] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 8.4 minutes
-- Total execution time: 0.7 hours
+- Total plans completed: 6
+- Average duration: 8.1 minutes
+- Total execution time: 0.8 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [████████░░] 50%
 |-------|-------|--------|----------|
 | 01    | 3     | 43.5m  | 14.5m    |
 | 02    | 2     | 4.6m   | 2.3m     |
+| 03    | 1     | 8.0m   | 8.0m     |
 
 **Recent Trend:**
-- Last 5 plans: 2.8m, 35m, 1.4m, 3.25m
-- Trend: Strong improvement in Phase 2 (avg 2.3m vs Phase 1 avg 14.5m)
+- Last 5 plans: 35m, 1.4m, 3.25m, 8.0m
+- Trend: Consistent sub-10min execution in Phase 2 & 3
 
 *Updated after each plan completion*
 
@@ -42,6 +43,7 @@ Progress: [████████░░] 50%
 - 2026-02-16: 01-03-PLAN.md (App Shell & Navigation) - 35m - 2 tasks
 - 2026-02-16: 02-01-PLAN.md (Dishes Database & Service Layer) - 1.4m - 2 tasks
 - 2026-02-16: 02-02-PLAN.md (Dish Management UI) - 3.25m - 2 tasks
+- 2026-02-17: 03-01-PLAN.md (Meal Planning Data Foundation) - 8.0m - 2 tasks
 
 ## Accumulated Context
 
@@ -71,10 +73,15 @@ Recent decisions affecting current work:
 - **[02-02]** Single-component approach for dish UI (not broken into sub-components) for simplicity
 - **[02-02]** Angular 17+ control flow (@if/@for) to avoid CommonModule imports
 - **[02-02]** Optimistic updates for favorite toggle and delete (better UX)
+- **[03-01]** DATE type for week_start (not TIMESTAMPTZ) — avoids timezone ambiguity, app sends ISO strings
+- **[03-01]** RLS on meal_assignments via weekly_plans ownership subquery — indirect RLS through plan ownership
+- **[03-01]** DEFAULT_CATEGORY_PREFERENCES: Fleisch=2, Vegetarisch=2, Fisch=1 (5 assigned, 2 for any)
+- **[03-01]** getOrCreateWeeklyPlan uses maybeSingle() + explicit insert — clean single-row return
+- **[03-01]** getRecentDishIds uses !inner join syntax — filters dish history through plan ownership
 
 ### Pending Todos
 
-None yet.
+- Run 003_meal_plans.sql migration in Supabase Dashboard before testing meal planning features
 
 ### Blockers/Concerns
 
@@ -85,8 +92,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-16 (discuss-phase)
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-meal-planning/03-CONTEXT.md
+Last session: 2026-02-17 (execute-phase)
+Stopped at: Completed 03-01-PLAN.md (Meal Planning Data Foundation)
+Resume file: .planning/phases/03-meal-planning/03-01-SUMMARY.md
 Dev server: Running at http://localhost:4200
-Next action: Plan phase 3 with /gsd:plan-phase 3
+Next action: Execute 03-02-PLAN.md (Calendar UI)
