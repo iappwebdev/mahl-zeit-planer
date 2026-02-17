@@ -1,0 +1,120 @@
+<div class="flex flex-col" style="max-height: 70vh;">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 flex-shrink-0">
+    <h2 class="text-lg font-bold text-gray-800">Gericht auswählen</h2>
+    <button
+      type="button"
+      (click)="close()"
+      class="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+      aria-label="Schließen"
+    >
+      <!-- X icon -->
+      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Remove dish action (only when a dish is currently assigned) -->
+  @if (data.currentDishId) {
+    <div class="px-4 py-2 border-b border-gray-100 flex-shrink-0">
+      <button
+        type="button"
+        (click)="clear()"
+        class="w-full text-left px-3 py-2 text-red-600 font-medium hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
+      >
+        <!-- Trash icon -->
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+        Gericht entfernen
+      </button>
+    </div>
+  }
+
+  <!-- Category Filter Chips -->
+  <div class="flex gap-2 px-4 py-3 overflow-x-auto flex-shrink-0 border-b border-gray-100">
+    @for (option of filterOptions; track option.id) {
+      <button
+        type="button"
+        (click)="setFilter(option.id)"
+        class="px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap transition-colors border"
+        [class.bg-green-600]="activeFilter() === option.id"
+        [class.text-white]="activeFilter() === option.id"
+        [class.border-green-600]="activeFilter() === option.id"
+        [class.bg-white]="activeFilter() !== option.id"
+        [class.text-gray-600]="activeFilter() !== option.id"
+        [class.border-gray-300]="activeFilter() !== option.id"
+        [class.hover:border-gray-400]="activeFilter() !== option.id"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Dish List -->
+  <div class="overflow-y-auto flex-1">
+
+    <!-- Loading state -->
+    @if (isLoading()) {
+      <div class="text-center py-8 text-gray-500">
+        Laden...
+      </div>
+    }
+
+    <!-- Empty state -->
+    @if (!isLoading() && filteredDishes().length === 0) {
+      <div class="text-center py-8 text-gray-500">
+        Keine Gerichte in dieser Kategorie
+      </div>
+    }
+
+    <!-- Dish rows -->
+    @if (!isLoading() && filteredDishes().length > 0) {
+      <div class="divide-y divide-gray-100">
+        @for (dish of filteredDishes(); track dish.id) {
+          <button
+            type="button"
+            (click)="selectDish(dish)"
+            class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+            [class.bg-green-50]="dish.id === data.currentDishId"
+            [class.border-l-4]="dish.id === data.currentDishId"
+            [class.border-green-500]="dish.id === data.currentDishId"
+          >
+            <!-- Dish name -->
+            <span class="flex-1 font-medium text-gray-800">{{ dish.name }}</span>
+
+            <!-- Category badge -->
+            <span
+              class="px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
+              [class.bg-blue-100]="dish.category === 'Fisch'"
+              [class.text-blue-800]="dish.category === 'Fisch'"
+              [class.bg-red-100]="dish.category === 'Fleisch'"
+              [class.text-red-800]="dish.category === 'Fleisch'"
+              [class.bg-green-100]="dish.category === 'Vegetarisch'"
+              [class.text-green-800]="dish.category === 'Vegetarisch'"
+            >
+              {{ dish.category }}
+            </span>
+
+            <!-- Favorite heart indicator -->
+            @if (dish.is_favorite) {
+              <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+              </svg>
+            }
+
+            <!-- Checkmark if currently selected -->
+            @if (dish.id === data.currentDishId) {
+              <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            }
+          </button>
+        }
+      </div>
+    }
+
+  </div>
+</div>
