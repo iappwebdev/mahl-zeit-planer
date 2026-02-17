@@ -23,6 +23,7 @@ import {
 } from './models/meal-plan.model';
 import { DishPickerComponent } from './components/dish-picker/dish-picker.component';
 import { CategoryConfigComponent } from './components/category-config/category-config.component';
+import { LucideAngularModule, ChevronLeft, ChevronRight, Sparkles, Settings, ArrowLeftRight, Plus, X, AlertTriangle } from 'lucide-angular';
 
 /** Shape of each day card rendered in the template */
 interface DayCard {
@@ -40,7 +41,7 @@ interface DayCard {
  */
 @Component({
   selector: 'app-meal-plan',
-  imports: [MatBottomSheetModule, MatSnackBarModule, CategoryConfigComponent],
+  imports: [MatBottomSheetModule, MatSnackBarModule, CategoryConfigComponent, LucideAngularModule],
   templateUrl: './meal-plan.component.html',
   styleUrl: './meal-plan.component.css'
 })
@@ -49,6 +50,16 @@ export class MealPlanComponent implements OnInit {
   private generatorService = inject(MealPlanGeneratorService);
   private bottomSheet = inject(MatBottomSheet);
   private snackBar = inject(MatSnackBar);
+
+  // Lucide icons
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
+  readonly Sparkles = Sparkles;
+  readonly Settings = Settings;
+  readonly ArrowLeftRight = ArrowLeftRight;
+  readonly Plus = Plus;
+  readonly X = X;
+  readonly AlertTriangle = AlertTriangle;
 
   // ---------------------------------------------------------------------------
   // State

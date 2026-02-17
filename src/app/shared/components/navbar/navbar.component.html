@@ -11,26 +11,29 @@
       <a
         routerLink="/gerichte"
         routerLinkActive="bg-surface"
-        class="px-4 py-2 rounded-lg transition-colors text-secondary font-medium"
+        class="px-4 py-2 rounded-lg transition-colors text-secondary font-medium flex items-center gap-2"
         style="--tw-text-opacity: 1;"
       >
+        <lucide-icon [img]="ChefHat" [size]="18"></lucide-icon>
         Meine Gerichte
       </a>
       <a
         routerLink="/wochenplan"
         routerLinkActive="bg-surface"
-        class="px-4 py-2 rounded-lg transition-colors text-secondary font-medium"
+        class="px-4 py-2 rounded-lg transition-colors text-secondary font-medium flex items-center gap-2"
         style="--tw-text-opacity: 1;"
       >
+        <lucide-icon [img]="Calendar" [size]="18"></lucide-icon>
         Wochenplan
       </a>
       <button
         (click)="logout()"
-        class="ml-2 px-4 py-2 rounded-lg transition-colors font-medium"
+        class="ml-2 px-4 py-2 rounded-lg transition-colors font-medium flex items-center gap-2"
         style="background-color: var(--brand-primary); color: white;"
         onmouseover="this.style.backgroundColor='var(--brand-hover)'"
         onmouseout="this.style.backgroundColor='var(--brand-primary)'"
       >
+        <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
         Abmelden
       </button>
     </div>
@@ -47,7 +50,7 @@
       [routerLinkActiveOptions]="{exact: false}"
       class="flex flex-col items-center justify-center flex-1 h-full text-tertiary transition-colors"
     >
-      <div class="text-2xl mb-1">🍽️</div>
+      <lucide-icon [img]="ChefHat" [size]="24" class="mb-1"></lucide-icon>
       <span class="text-xs font-medium">Gerichte</span>
     </a>
 
@@ -58,7 +61,7 @@
       [routerLinkActiveOptions]="{exact: false}"
       class="flex flex-col items-center justify-center flex-1 h-full text-tertiary transition-colors"
     >
-      <div class="text-2xl mb-1">📅</div>
+      <lucide-icon [img]="Calendar" [size]="24" class="mb-1"></lucide-icon>
       <span class="text-xs font-medium">Wochenplan</span>
     </a>
 
@@ -67,7 +70,7 @@
       (click)="logout()"
       class="flex flex-col items-center justify-center flex-1 h-full text-tertiary transition-colors"
     >
-      <div class="text-2xl mb-1">🚪</div>
+      <lucide-icon [img]="LogOut" [size]="24" class="mb-1"></lucide-icon>
       <span class="text-xs font-medium">Abmelden</span>
     </button>
   </div>
