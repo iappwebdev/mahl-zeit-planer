@@ -56,6 +56,100 @@
     }
   </div>
 
+  <!-- Generate Plan Button + Settings Toggle -->
+  @if (!isPastWeek()) {
+    <div class="mb-4">
+
+      <!-- Button row -->
+      <div class="flex items-center gap-2">
+
+        <!-- Primary generate button -->
+        <button
+          type="button"
+          (click)="generatePlan()"
+          [disabled]="isGenerating() || isPastWeek()"
+          class="flex-1 px-6 py-3 rounded-lg font-semibold text-white transition-colors flex items-center justify-center gap-2"
+          [class.bg-green-600]="!isGenerating()"
+          [class.hover:bg-green-700]="!isGenerating()"
+          [class.bg-green-400]="isGenerating()"
+          [class.cursor-not-allowed]="isGenerating()"
+        >
+          @if (isGenerating()) {
+            <!-- Spinner -->
+            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Generiere...
+          } @else if (hasExistingAssignments()) {
+            <!-- Refresh icon for regenerate -->
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Neu generieren
+          } @else {
+            <!-- Stars / magic icon for first generation -->
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+            Plan generieren
+          }
+        </button>
+
+        <!-- Settings / gear toggle button -->
+        <button
+          type="button"
+          (click)="toggleCategoryConfig()"
+          class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-gray-300 transition-colors"
+          [class.bg-gray-100]="showCategoryConfig()"
+          [class.hover:bg-gray-50]="!showCategoryConfig()"
+          [class.text-green-700]="showCategoryConfig()"
+          [class.text-gray-500]="!showCategoryConfig()"
+          title="Kategorie-Verteilung anpassen"
+          aria-label="Verteilung anpassen"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+
+      </div>
+
+      <!-- Category config panel (collapsible) -->
+      @if (showCategoryConfig()) {
+        <div class="mt-3">
+          <app-category-config />
+        </div>
+      }
+
+      <!-- Generation warnings -->
+      @if (generationWarnings().length > 0) {
+        <div class="mt-3 space-y-2">
+          @for (warning of generationWarnings(); track warning) {
+            <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span class="text-sm text-amber-800 flex-1">{{ warning }}</span>
+              <button
+                type="button"
+                (click)="dismissWarnings()"
+                class="text-amber-500 hover:text-amber-700 flex-shrink-0"
+                aria-label="Warnung schliessen"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  }
+
   <!-- Day Cards -->
   <div class="space-y-2">
     @for (card of dayCards(); track card.dayOfWeek) {
@@ -66,6 +160,7 @@
           class="bg-white rounded-lg shadow-sm p-4 transition-shadow"
           [class.border-l-4]="card.isToday"
           [class.border-green-500]="card.isToday"
+          [class.opacity-60]="isGenerating()"
           [class.hover:shadow-md]="isCurrentOrFutureWeek()"
         >
           <div class="flex items-center gap-3">
@@ -104,6 +199,7 @@
               <button
                 type="button"
                 (click)="openDishPicker(card.dayOfWeek)"
+                [disabled]="isGenerating()"
                 class="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0"
                 aria-label="Gericht tauschen"
               >
@@ -123,8 +219,9 @@
           class="bg-white rounded-lg shadow-sm p-4 transition-shadow"
           [class.border-l-4]="card.isToday"
           [class.border-green-500]="card.isToday"
+          [class.opacity-60]="isGenerating()"
           [class.hover:shadow-md]="isCurrentOrFutureWeek()"
-          [class.cursor-pointer]="isCurrentOrFutureWeek()"
+          [class.cursor-pointer]="isCurrentOrFutureWeek() && !isGenerating()"
           (click)="openDishPicker(card.dayOfWeek)"
         >
           <div class="flex items-center gap-3">
@@ -132,11 +229,15 @@
             <!-- Day label + empty indicator -->
             <div class="flex-1">
               <div class="font-bold text-gray-800 text-sm mb-1">{{ card.dayLabel }}</div>
-              <div class="text-sm text-gray-400 italic">Kein Gericht</div>
+              @if (isGenerating()) {
+                <div class="h-4 bg-gray-200 rounded animate-pulse w-32"></div>
+              } @else {
+                <div class="text-sm text-gray-400 italic">Kein Gericht</div>
+              }
             </div>
 
-            <!-- Plus icon (only for editable weeks) -->
-            @if (isCurrentOrFutureWeek()) {
+            <!-- Plus icon (only for editable weeks, not while generating) -->
+            @if (isCurrentOrFutureWeek() && !isGenerating()) {
               <div class="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0">
                 <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -149,22 +250,6 @@
       }
 
     }
-  </div>
-
-  <!-- Generate Plan Button (placeholder — will be activated in Plan 03) -->
-  <div class="mt-6 flex justify-center">
-    <button
-      type="button"
-      disabled
-      class="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold opacity-50 cursor-not-allowed flex items-center gap-2"
-      title="Plan generieren wird in einem zukünftigen Update aktiviert"
-    >
-      <!-- Magic wand / stars icon -->
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-      </svg>
-      Plan generieren
-    </button>
   </div>
 
 </div>

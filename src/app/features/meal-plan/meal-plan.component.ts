@@ -11,6 +11,7 @@ import {
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MealPlanService } from './services/meal-plan.service';
+import { MealPlanGeneratorService } from './services/meal-plan-generator.service';
 import { Dish } from '../dishes/models/dish.model';
 import {
   DayOfWeek,
@@ -21,6 +22,7 @@ import {
   formatDateGerman
 } from './models/meal-plan.model';
 import { DishPickerComponent } from './components/dish-picker/dish-picker.component';
+import { CategoryConfigComponent } from './components/category-config/category-config.component';
 
 /** Shape of each day card rendered in the template */
 interface DayCard {
@@ -34,16 +36,17 @@ interface DayCard {
 /**
  * Weekly calendar component — the primary meal planning interface.
  * Shows Mon-Sun day cards, supports manual dish assignment via bottom sheet,
- * week navigation, and a category distribution summary.
+ * week navigation, a category distribution summary, and one-click plan generation.
  */
 @Component({
   selector: 'app-meal-plan',
-  imports: [MatBottomSheetModule, MatSnackBarModule],
+  imports: [MatBottomSheetModule, MatSnackBarModule, CategoryConfigComponent],
   templateUrl: './meal-plan.component.html',
   styleUrl: './meal-plan.component.css'
 })
 export class MealPlanComponent implements OnInit {
   private mealPlanService = inject(MealPlanService);
+  private generatorService = inject(MealPlanGeneratorService);
   private bottomSheet = inject(MatBottomSheet);
   private snackBar = inject(MatSnackBar);
 
@@ -62,6 +65,15 @@ export class MealPlanComponent implements OnInit {
 
   isLoading: WritableSignal<boolean> = signal(false);
 
+  /** True while the generation algorithm is running */
+  isGenerating: WritableSignal<boolean> = signal(false);
+
+  /** Warnings returned by the generation algorithm (e.g. small library) */
+  generationWarnings: WritableSignal<string[]> = signal([]);
+
+  /** Whether the category config panel is expanded */
+  showCategoryConfig: WritableSignal<boolean> = signal(false);
+
   // ---------------------------------------------------------------------------
   // Derived / computed
   // ---------------------------------------------------------------------------
@@ -70,7 +82,6 @@ export class MealPlanComponent implements OnInit {
   weekDates: Signal<string[]> = computed(() => getWeekDates(this.currentWeekStart()));
 
   /** Today's ISO date string for "isToday" highlighting */
-  private todayStr = getWeekStart(new Date()); // reuse week calc — actually just today:
   private todayIso = new Date().toISOString().slice(0, 10);
 
   /** Array of 7 day card objects for the template */
@@ -175,6 +186,9 @@ export class MealPlanComponent implements OnInit {
     return result;
   });
 
+  /** True when the plan already has at least one dish assigned */
+  hasExistingAssignments: Signal<boolean> = computed(() => this.assignments().size > 0);
+
   // ---------------------------------------------------------------------------
   // Lifecycle
   // ---------------------------------------------------------------------------
@@ -232,7 +246,72 @@ export class MealPlanComponent implements OnInit {
   }
 
   // ---------------------------------------------------------------------------
-  // Dish assignment
+  // Plan generation
+  // ---------------------------------------------------------------------------
+
+  async generatePlan(): Promise<void> {
+    // If plan already has assignments, ask for confirmation before overwriting
+    if (this.hasExistingAssignments()) {
+      const confirmed = window.confirm('Bestehende Eintrage uberschreiben?');
+      if (!confirmed) return;
+    }
+
+    this.isGenerating.set(true);
+    this.generationWarnings.set([]);
+
+    try {
+      // Run the generation algorithm
+      const result = await this.generatorService.generateWeeklyPlan(this.currentWeekStart());
+
+      // Ensure a weekly plan record exists
+      const plan = await this.mealPlanService.getOrCreateWeeklyPlan(this.currentWeekStart());
+      const planId = plan.id;
+      this.weeklyPlanId.set(planId);
+
+      // Clear existing assignments
+      await this.mealPlanService.clearWeekAssignments(planId);
+
+      // Persist all 7 assignments (or however many were generated)
+      const days: DayOfWeek[] = [0, 1, 2, 3, 4, 5, 6];
+      const savedAssignments = new Map<DayOfWeek, MealAssignment>();
+
+      for (const day of days) {
+        const dish = result.assignments.get(day);
+        if (dish) {
+          const saved = await this.mealPlanService.assignDish(planId, day, dish.id);
+          savedAssignments.set(day, saved);
+        }
+      }
+
+      // Update UI with persisted assignments
+      this.assignments.set(savedAssignments);
+
+      // Show any warnings from the algorithm
+      this.generationWarnings.set(result.warnings);
+
+    } catch (err: any) {
+      this.snackBar.open(
+        'Fehler beim Generieren: ' + (err.message ?? 'Unbekannter Fehler'),
+        'OK',
+        { duration: 4000 }
+      );
+    } finally {
+      this.isGenerating.set(false);
+    }
+  }
+
+  /** Toggle visibility of the category config panel */
+  toggleCategoryConfig(): void {
+    this.showCategoryConfig.update(v => !v);
+  }
+
+  /** Dismiss all generation warnings */
+  dismissWarnings(): void {
+    this.generationWarnings.set([]);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Dish assignment (manual)
   // ---------------------------------------------------------------------------
 
   openDishPicker(dayOfWeek: DayOfWeek): void {
