@@ -18,6 +18,14 @@
       "Bash(git log:*)",
       "Bash(git diff:*)",
       "Bash(git tag:*)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/secrets/*)",
+      "Read(**/*credential*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)"
     ]
   }
 }
