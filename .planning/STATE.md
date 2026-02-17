@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Die Familie muss nie wieder täglich überlegen, was es zum Abendessen gibt — ein Klick generiert einen ausgewogenen Wochenplan aus dem eigenen Gerichtepool.
-**Current focus:** Phase 4 - Realtime Collaboration - IN PROGRESS
+**Current focus:** Phase 4 - Realtime Collaboration - COMPLETE
 
 ## Current Position
 
-Phase: 4 of 4 (Realtime Collaboration) - IN PROGRESS
-Plan: 2 of 3 in current phase - COMPLETED
-Status: 04-02 complete — settings page with household panel, accept-invite page, Edge Function invite-user, navigation updated
-Last activity: 2026-02-17 — Completed 04-02-PLAN.md
+Phase: 4 of 4 (Realtime Collaboration) - COMPLETE
+Plan: 3 of 3 in current phase - COMPLETED
+Status: 04-03 complete — RealtimeService, live dish/meal-plan updates, person-named toasts, ActivityFeedComponent
+Last activity: 2026-02-17 — Completed 04-03-PLAN.md
 
-Progress: [███████████████] 93%
+Progress: [████████████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 5.7 minutes
-- Total execution time: 0.95 hours
+- Total plans completed: 11
+- Average duration: 5.4 minutes
+- Total execution time: 0.98 hours
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [███████████████] 93%
 | 01    | 3     | 43.5m  | 14.5m    |
 | 02    | 2     | 4.6m   | 2.3m     |
 | 03    | 3     | 15.7m  | 5.2m     |
-| 04    | 2     | 8.0m   | 4.0m     |
+| 04    | 3     | 11.0m  | 3.7m     |
 
 **Recent Trend:**
-- Last 5 plans: 8.0m, 3.5m, 4.2m, 4.0m
-- Trend: Consistent sub-10min execution
+- Last 5 plans: 3.5m, 4.2m, 4.0m, 4.0m, 3.0m
+- Trend: Consistent sub-5min execution
 
 *Updated after each plan completion*
 
@@ -49,6 +49,7 @@ Progress: [███████████████] 93%
 - 2026-02-17: 03-03-PLAN.md (Generation Algorithm) - 4.2m - 2 tasks
 - 2026-02-17: 04-01-PLAN.md (Household Database Foundation) - 4.0m - 2 tasks
 - 2026-02-17: 04-02-PLAN.md (Household Settings UI & Invite System) - 4.0m - 2 tasks
+- 2026-02-17: 04-03-PLAN.md (Realtime Collaboration Sync) - 3.0m - 2 tasks
 
 ## Accumulated Context
 
@@ -101,6 +102,11 @@ Recent decisions affecting current work:
 - **[04-02]** SessionStorage for invite token persistence through registration flow (cleared on tab close)
 - **[04-02]** Edge Function validates invite token before calling inviteUserByEmail (prevents spam/abuse)
 - **[04-02]** AcceptInviteComponent stub created in Task 1 to enable route compilation, fleshed out in Task 2
+- **[04-03]** RealtimeService uses effect() on householdId signal for auto-subscribe/unsubscribe — no manual calls needed
+- **[04-03]** Single Supabase channel per household with multiple postgres_changes listeners (not one per table)
+- **[04-03]** activityChange (not dishChange) used for person-named toasts — activity_log carries display_name from trigger
+- **[04-03]** currentUserId stored as component field, loaded in ngOnInit — avoids async in effect(), filters own-change toasts
+- **[04-03]** ActivityFeedComponent auto-refresh watches dishChange/assignmentChange (not activityChange) — triggers fresh fetch
 
 ### Pending Todos
 
@@ -116,6 +122,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-17 (execute-phase)
-Stopped at: Completed 04-02-PLAN.md
-Resume file: .planning/phases/04-realtime-collaboration/04-02-SUMMARY.md
-Next action: Execute 04-03-PLAN.md (Realtime Collaboration Sync)
+Stopped at: Completed 04-03-PLAN.md — ALL PHASES COMPLETE
+Resume file: .planning/phases/04-realtime-collaboration/04-03-SUMMARY.md
+Next action: Project complete — v1 delivered
