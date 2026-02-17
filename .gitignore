@@ -40,6 +40,9 @@ testem.log
 /typings
 __screenshots__/
 
+# Worktrees
+.worktrees/
+
 # System files
 .DS_Store
 Thumbs.db
