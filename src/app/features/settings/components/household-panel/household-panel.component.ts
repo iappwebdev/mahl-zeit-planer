@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HouseholdService } from '../../../../core/services/household.service';
 import { SupabaseService } from '../../../../core/services/supabase.service';
-import { HouseholdMember, HouseholdInvite } from '../../models/household.model';
+import { HouseholdMemberProfile, HouseholdInvite } from '../../models/household.model';
 
 @Component({
   selector: 'app-household-panel',
@@ -16,7 +16,7 @@ export class HouseholdPanelComponent implements OnInit {
   private readonly supabaseService = inject(SupabaseService);
 
   protected readonly household = computed(() => this.householdService.currentHousehold());
-  protected readonly members = signal<HouseholdMember[]>([]);
+  protected readonly members = signal<HouseholdMemberProfile[]>([]);
   protected readonly invites = signal<HouseholdInvite[]>([]);
   protected readonly isLoading = signal(true);
   protected newHouseholdName = '';
@@ -113,13 +113,13 @@ export class HouseholdPanelComponent implements OnInit {
     }
   }
 
-  async removeMember(memberId: string): Promise<void> {
+  async removeMember(userId: string): Promise<void> {
     if (!window.confirm('Mitglied entfernen?')) {
       return;
     }
     try {
-      await this.householdService.removeMember(memberId);
-      this.members.update(list => list.filter(m => m.id !== memberId));
+      await this.householdService.removeMember(userId);
+      this.members.update(list => list.filter(m => m.id !== userId));
       this.snackBar.open('Mitglied entfernt', '', { duration: 3000 });
     } catch (err: any) {
       this.snackBar.open('Fehler: ' + (err.message ?? err), '', { duration: 4000 });

@@ -8,14 +8,10 @@ export interface Household {
   updated_at: string;
 }
 
-export interface HouseholdMember {
+export interface HouseholdMemberProfile {
   id: string;
-  household_id: string;
-  user_id: string;
-  role: HouseholdRole;
-  joined_at: string;
-  // Joined from profiles table
-  display_name?: string;
+  display_name: string | null;
+  household_role: HouseholdRole;
 }
 
 export interface HouseholdInvite {
@@ -37,6 +33,5 @@ export interface ActivityLogEntry {
   entity_type: string;
   entity_name: string | null;
   created_at: string;
-  // Written by trigger from profiles at INSERT time; carried in Realtime payload
   display_name?: string;
 }

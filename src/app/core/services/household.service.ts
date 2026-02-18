@@ -2,16 +2,11 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import {
   Household,
-  HouseholdMember,
+  HouseholdMemberProfile,
   HouseholdInvite,
   ActivityLogEntry
 } from '../../features/settings/models/household.model';
 
-/**
- * Service for managing household lifecycle: create, join, leave, invite, activity log.
- * Uses reactive signals so downstream services can react to household mode changes.
- * Follows the established DishService error pattern: throw on error, no try/catch.
- */
 @Injectable({
   providedIn: 'root'
 })
@@ -25,9 +20,8 @@ export class HouseholdService {
   householdId = computed(() => this.currentHousehold()?.id ?? null);
 
   /**
-   * Load the current user's household membership and populate the signal.
-   * Call this on app init (e.g., from AppComponent or an app initializer).
-   * Sets signal to null if the user has no household (solo mode).
+   * Load the current user's household from their profile's household_id.
+   * Single query — no join table needed.
    */
   async loadCurrentHousehold(): Promise<void> {
     const { data: userData, error: userError } = await this.supabase.client.auth.getUser();
@@ -37,19 +31,18 @@ export class HouseholdService {
       return;
     }
 
-    // Find the user's membership
-    const { data: membership, error: memberError } = await this.supabase.client
-      .from('household_members')
+    // Read household_id from the user's profile
+    const { data: profile, error: profileError } = await this.supabase.client
+      .from('profiles')
       .select('household_id')
-      .eq('user_id', userData.user.id)
-      .limit(1)
-      .maybeSingle();
+      .eq('id', userData.user.id)
+      .single();
 
-    if (memberError) {
-      throw memberError;
+    if (profileError) {
+      throw profileError;
     }
 
-    if (!membership) {
+    if (!profile?.household_id) {
       this.currentHousehold.set(null);
       return;
     }
@@ -58,7 +51,7 @@ export class HouseholdService {
     const { data: household, error: householdError } = await this.supabase.client
       .from('households')
       .select('*')
-      .eq('id', membership.household_id)
+      .eq('id', profile.household_id)
       .single();
 
     if (householdError) {
@@ -70,7 +63,7 @@ export class HouseholdService {
 
   /**
    * Create a new household and migrate existing user dishes/plans to it.
-   * Also inserts the owner as a member with role='owner'.
+   * Updates own profile with household_id + household_role='owner'.
    */
   async createHousehold(name: string): Promise<Household> {
     const { data: userData, error: userError } = await this.supabase.client.auth.getUser();
@@ -94,13 +87,14 @@ export class HouseholdService {
 
     const createdHousehold = household as Household;
 
-    // Insert owner as member
-    const { error: memberError } = await this.supabase.client
-      .from('household_members')
-      .insert({ household_id: createdHousehold.id, user_id: userId, role: 'owner' });
+    // Update own profile with household membership
+    const { error: profileError } = await this.supabase.client
+      .from('profiles')
+      .update({ household_id: createdHousehold.id, household_role: 'owner' })
+      .eq('id', userId);
 
-    if (memberError) {
-      throw memberError;
+    if (profileError) {
+      throw profileError;
     }
 
     // Migrate existing solo dishes to the new household
@@ -130,10 +124,9 @@ export class HouseholdService {
   }
 
   /**
-   * Get all members of the current household, with display_name joined from profiles.
-   * Returns empty array if user has no household.
+   * Get all members of the current household from profiles table.
    */
-  async getMembers(): Promise<HouseholdMember[]> {
+  async getMembers(): Promise<HouseholdMemberProfile[]> {
     const householdId = this.householdId();
 
     if (!householdId) {
@@ -141,34 +134,25 @@ export class HouseholdService {
     }
 
     const { data, error } = await this.supabase.client
-      .from('household_members')
-      .select('*, profiles(display_name)')
+      .from('profiles')
+      .select('id, display_name, household_role')
       .eq('household_id', householdId);
 
     if (error) {
       throw error;
     }
 
-    // Flatten joined profiles.display_name onto each member
-    return ((data || []) as any[]).map((row) => ({
-      id: row.id,
-      household_id: row.household_id,
-      user_id: row.user_id,
-      role: row.role,
-      joined_at: row.joined_at,
-      display_name: row.profiles?.display_name ?? undefined
-    })) as HouseholdMember[];
+    return (data || []) as HouseholdMemberProfile[];
   }
 
   /**
-   * Remove a member from the current household.
-   * Only the owner should call this (UI enforces the restriction).
+   * Remove a member from the current household by clearing their profile fields.
    */
-  async removeMember(memberId: string): Promise<void> {
+  async removeMember(userId: string): Promise<void> {
     const { error } = await this.supabase.client
-      .from('household_members')
-      .delete()
-      .eq('id', memberId);
+      .from('profiles')
+      .update({ household_id: null, household_role: null })
+      .eq('id', userId);
 
     if (error) {
       throw error;
@@ -176,7 +160,7 @@ export class HouseholdService {
   }
 
   /**
-   * Leave the current household. Removes own membership and resets signal to solo mode.
+   * Leave the current household. Clears own profile fields and resets signal.
    */
   async leaveHousehold(): Promise<void> {
     const { data: userData, error: userError } = await this.supabase.client.auth.getUser();
@@ -185,17 +169,10 @@ export class HouseholdService {
       throw userError || new Error('User not authenticated');
     }
 
-    const householdId = this.householdId();
-
-    if (!householdId) {
-      return;
-    }
-
     const { error } = await this.supabase.client
-      .from('household_members')
-      .delete()
-      .eq('household_id', householdId)
-      .eq('user_id', userData.user.id);
+      .from('profiles')
+      .update({ household_id: null, household_role: null })
+      .eq('id', userData.user.id);
 
     if (error) {
       throw error;
@@ -205,9 +182,8 @@ export class HouseholdService {
   }
 
   /**
-   * Delete the current household (CASCADE removes all members/invites/activity).
-   * Only the owner should call this (UI enforces the restriction).
-   * Resets signal to solo mode.
+   * Delete the current household (CASCADE removes invites/activity).
+   * profiles.household_id set to NULL via ON DELETE SET NULL.
    */
   async deleteHousehold(): Promise<void> {
     const householdId = this.householdId();
@@ -230,7 +206,6 @@ export class HouseholdService {
 
   /**
    * Create a shareable invite link for the current household.
-   * Returns the invite token; caller builds the full URL.
    */
   async createInviteLink(): Promise<string> {
     const { data: userData, error: userError } = await this.supabase.client.auth.getUser();
@@ -260,7 +235,6 @@ export class HouseholdService {
 
   /**
    * Get all active (non-expired, non-used) invites for the current household.
-   * Returns empty array if user has no household.
    */
   async getInvites(): Promise<HouseholdInvite[]> {
     const householdId = this.householdId();
@@ -287,9 +261,7 @@ export class HouseholdService {
   }
 
   /**
-   * Accept an invite token: validate it, insert membership, mark invite used,
-   * and migrate existing solo dishes/plans to the new household.
-   * Updates the currentHousehold signal.
+   * Accept an invite: validate token, update own profile, mark invite used, migrate data.
    */
   async acceptInvite(token: string): Promise<void> {
     const { data: userData, error: userError } = await this.supabase.client.auth.getUser();
@@ -320,13 +292,14 @@ export class HouseholdService {
 
     const typedInvite = invite as HouseholdInvite;
 
-    // Insert membership as member
-    const { error: memberError } = await this.supabase.client
-      .from('household_members')
-      .insert({ household_id: typedInvite.household_id, user_id: userId, role: 'member' });
+    // Update own profile with household membership
+    const { error: profileError } = await this.supabase.client
+      .from('profiles')
+      .update({ household_id: typedInvite.household_id, household_role: 'member' })
+      .eq('id', userId);
 
-    if (memberError) {
-      throw memberError;
+    if (profileError) {
+      throw profileError;
     }
 
     // Mark invite as used
@@ -376,8 +349,7 @@ export class HouseholdService {
   }
 
   /**
-   * Get recent activity for the current household, ordered newest first.
-   * Returns empty array if user has no household.
+   * Get recent activity for the current household.
    */
   async getActivityLog(limit: number = 20): Promise<ActivityLogEntry[]> {
     const householdId = this.householdId();
@@ -408,9 +380,6 @@ export class HouseholdService {
     if (!household) {
       return false;
     }
-    // Note: We compare against the cached household's owner_id.
-    // The actual user ID check requires an async call so UI should gate
-    // on this signal-based heuristic, with RLS as the enforcement layer.
-    return true; // Checked at RLS level; UI caller should compare household.owner_id to user.id
+    return true;
   }
 }
