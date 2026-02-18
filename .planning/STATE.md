@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Die Familie muss nie wieder täglich überlegen, was es zum Abendessen gibt — ein Klick generiert einen ausgewogenen Wochenplan aus dem eigenen Gerichtepool.
-**Current focus:** Phase 3 - Meal Planning - COMPLETE
+**Current focus:** Phase 4 - Realtime Collaboration - COMPLETE
 
 ## Current Position
 
-Phase: 3 of 4 (Meal Planning) - COMPLETE
+Phase: 4 of 4 (Realtime Collaboration) - COMPLETE
 Plan: 3 of 3 in current phase - COMPLETED
-Status: 03-03 complete — generation algorithm, category config, and full integration delivered; Phase 3 done
-Last activity: 2026-02-17 — Completed 03-03-PLAN.md
+Status: 04-03 complete — RealtimeService, live dish/meal-plan updates, person-named toasts, ActivityFeedComponent
+Last activity: 2026-02-17 — Completed 04-03-PLAN.md
 
-Progress: [████████████] 80%
+Progress: [████████████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 6.2 minutes
-- Total execution time: 0.9 hours
+- Total plans completed: 11
+- Average duration: 5.4 minutes
+- Total execution time: 0.98 hours
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [████████████] 80%
 | 01    | 3     | 43.5m  | 14.5m    |
 | 02    | 2     | 4.6m   | 2.3m     |
 | 03    | 3     | 15.7m  | 5.2m     |
+| 04    | 3     | 11.0m  | 3.7m     |
 
 **Recent Trend:**
-- Last 5 plans: 3.25m, 8.0m, 3.5m, 4.2m
-- Trend: Consistent sub-10min execution in Phase 2 & 3
+- Last 5 plans: 3.5m, 4.2m, 4.0m, 4.0m, 3.0m
+- Trend: Consistent sub-5min execution
 
 *Updated after each plan completion*
 
@@ -46,6 +47,9 @@ Progress: [████████████] 80%
 - 2026-02-17: 03-01-PLAN.md (Meal Planning Data Foundation) - 8.0m - 2 tasks
 - 2026-02-17: 03-02-PLAN.md (Weekly Calendar UI) - 3.5m - 2 tasks
 - 2026-02-17: 03-03-PLAN.md (Generation Algorithm) - 4.2m - 2 tasks
+- 2026-02-17: 04-01-PLAN.md (Household Database Foundation) - 4.0m - 2 tasks
+- 2026-02-17: 04-02-PLAN.md (Household Settings UI & Invite System) - 4.0m - 2 tasks
+- 2026-02-17: 04-03-PLAN.md (Realtime Collaboration Sync) - 3.0m - 2 tasks
 
 ## Accumulated Context
 
@@ -88,6 +92,21 @@ Recent decisions affecting current work:
 - **[03-03]** 3x favorite weighting via pool duplication (not priority queue) — simple, correct, O(n) overhead
 - **[03-03]** 3-phase algorithm: category slots first, then any-category leftovers, then repeats as last resort
 - **[03-03]** CategoryConfigComponent import path uses 3 levels up (../../../dishes/) not 4
+- **[04-01]** Dual-mode RLS pattern: solo (user_id) OR (household_id IS NOT NULL AND membership) — backward-compatible
+- **[04-01]** Data migration on createHousehold/acceptInvite: existing solo dishes/plans updated to household_id
+- **[04-01]** SECURITY DEFINER triggers for activity_log: cross-table access to profiles, display_name embedded in row
+- **[04-01]** display_name written at INSERT time by trigger — Realtime payload carries it without JOIN
+- **[04-01]** Category preferences remain user-scoped (not household) — defers "whose preferences" question
+- **[04-01]** Partial unique index idx_weekly_plans_household_week: one plan per household per week
+- **[04-02]** SupabaseService.supabaseUrl getter added to expose project URL (SupabaseClient.supabaseUrl is protected)
+- **[04-02]** SessionStorage for invite token persistence through registration flow (cleared on tab close)
+- **[04-02]** Edge Function validates invite token before calling inviteUserByEmail (prevents spam/abuse)
+- **[04-02]** AcceptInviteComponent stub created in Task 1 to enable route compilation, fleshed out in Task 2
+- **[04-03]** RealtimeService uses effect() on householdId signal for auto-subscribe/unsubscribe — no manual calls needed
+- **[04-03]** Single Supabase channel per household with multiple postgres_changes listeners (not one per table)
+- **[04-03]** activityChange (not dishChange) used for person-named toasts — activity_log carries display_name from trigger
+- **[04-03]** currentUserId stored as component field, loaded in ngOnInit — avoids async in effect(), filters own-change toasts
+- **[04-03]** ActivityFeedComponent auto-refresh watches dishChange/assignmentChange (not activityChange) — triggers fresh fetch
 
 ### Pending Todos
 
@@ -102,7 +121,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-17 (discuss-phase)
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-realtime-collaboration/04-CONTEXT.md
-Next action: Plan Phase 4 (Realtime Collaboration)
+Last session: 2026-02-17 (execute-phase)
+Stopped at: Completed 04-03-PLAN.md — ALL PHASES COMPLETE
+Resume file: .planning/phases/04-realtime-collaboration/04-03-SUMMARY.md
+Next action: Project complete — v1 delivered

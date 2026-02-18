@@ -21,6 +21,13 @@ export class SupabaseService {
   }
 
   /**
+   * Get the Supabase project URL (for constructing Edge Function URLs).
+   */
+  get supabaseUrl(): string {
+    return environment.supabaseUrl;
+  }
+
+  /**
    * Sign up a new user with email and password.
    */
   async signUp(email: string, password: string): Promise<{ user: User | null; error: any }> {

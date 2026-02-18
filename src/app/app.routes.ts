@@ -4,6 +4,7 @@ import { guestGuard } from './core/guards/guest.guard';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 import { DishesComponent } from './features/dishes/dishes.component';
 import { MealPlanComponent } from './features/meal-plan/meal-plan.component';
+import { SettingsComponent } from './features/settings/settings.component';
 
 export const routes: Routes = [
   // Auth routes (guest guard - redirect logged-in users away)
@@ -34,8 +35,14 @@ export const routes: Routes = [
     children: [
       { path: 'gerichte', component: DishesComponent },
       { path: 'wochenplan', component: MealPlanComponent },
+      { path: 'einstellungen', component: SettingsComponent },
       { path: '', redirectTo: 'gerichte', pathMatch: 'full' }
     ]
+  },
+  // Invite acceptance — outside auth guard (user may need to register first)
+  {
+    path: 'einladen',
+    loadComponent: () => import('./features/auth/accept-invite/accept-invite.component').then(m => m.AcceptInviteComponent)
   },
   // Fallback
   { path: '**', redirectTo: 'anmelden' }

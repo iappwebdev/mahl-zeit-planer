@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../../../core/services/supabase.service';
+import { HouseholdService } from '../../../core/services/household.service';
 import { DishCategory } from '../../dishes/models/dish.model';
 import {
   WeeklyPlan,
@@ -12,6 +13,7 @@ import {
 
 /**
  * Service for managing weekly meal plans, dish assignments, and category preferences.
+ * Supports dual-mode access: solo (user_id) and household (household_id).
  * Follows the established DishService pattern: inject SupabaseService, throw on error.
  */
 @Injectable({
@@ -19,10 +21,12 @@ import {
 })
 export class MealPlanService {
   private supabase = inject(SupabaseService);
+  private household = inject(HouseholdService);
 
   /**
    * Get the existing weekly plan for a given week_start, or create one if it doesn't exist.
    * week_start must be a Monday in ISO format (YYYY-MM-DD).
+   * In household mode, plans are shared per household per week.
    */
   async getOrCreateWeeklyPlan(weekStart: string): Promise<WeeklyPlan> {
     const { data: userData, error: userError } = await this.supabase.client.auth.getUser();
@@ -32,8 +36,40 @@ export class MealPlanService {
     }
 
     const userId = userData.user.id;
+    const householdId = this.household.householdId();
 
-    // Try to find existing plan
+    if (householdId) {
+      // Household mode: find or create plan by household_id + week_start
+      const { data: existing, error: findError } = await this.supabase.client
+        .from('weekly_plans')
+        .select('*')
+        .eq('household_id', householdId)
+        .eq('week_start', weekStart)
+        .maybeSingle();
+
+      if (findError) {
+        throw findError;
+      }
+
+      if (existing) {
+        return existing as WeeklyPlan;
+      }
+
+      // Create new household plan (both user_id as creator and household_id set)
+      const { data: created, error: createError } = await this.supabase.client
+        .from('weekly_plans')
+        .insert({ user_id: userId, household_id: householdId, week_start: weekStart })
+        .select()
+        .single();
+
+      if (createError) {
+        throw createError;
+      }
+
+      return created as WeeklyPlan;
+    }
+
+    // Solo mode: find or create plan by user_id + week_start
     const { data: existing, error: findError } = await this.supabase.client
       .from('weekly_plans')
       .select('*')
@@ -49,7 +85,7 @@ export class MealPlanService {
       return existing as WeeklyPlan;
     }
 
-    // Create new plan
+    // Create new solo plan
     const { data: created, error: createError } = await this.supabase.client
       .from('weekly_plans')
       .insert({ user_id: userId, week_start: weekStart })
@@ -66,6 +102,7 @@ export class MealPlanService {
   /**
    * Load all meal assignments for a given week with dish data joined.
    * Returns empty array if no plan exists for the week.
+   * In household mode, looks up plan by household_id instead of user_id.
    */
   async getAssignmentsForWeek(weekStart: string): Promise<MealAssignment[]> {
     const { data: userData, error: userError } = await this.supabase.client.auth.getUser();
@@ -75,14 +112,26 @@ export class MealPlanService {
     }
 
     const userId = userData.user.id;
+    const householdId = this.household.householdId();
 
     // Find the plan for this week
-    const { data: plan, error: planError } = await this.supabase.client
+    let planQuery = this.supabase.client
       .from('weekly_plans')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('week_start', weekStart)
-      .maybeSingle();
+      .select('id');
+
+    if (householdId) {
+      // Household mode: find by household_id
+      planQuery = planQuery
+        .eq('household_id', householdId)
+        .eq('week_start', weekStart);
+    } else {
+      // Solo mode: find by user_id
+      planQuery = planQuery
+        .eq('user_id', userId)
+        .eq('week_start', weekStart);
+    }
+
+    const { data: plan, error: planError } = await planQuery.maybeSingle();
 
     if (planError) {
       throw planError;
@@ -148,6 +197,7 @@ export class MealPlanService {
   /**
    * Get the set of dish IDs used in the last N weeks (excluding current week).
    * Used to avoid repeating recent meals during plan generation.
+   * In household mode, filters by household_id instead of user_id.
    */
   async getRecentDishIds(currentWeekStart: string, weeksBack: number): Promise<Set<string>> {
     const { data: userData, error: userError } = await this.supabase.client.auth.getUser();
@@ -157,13 +207,35 @@ export class MealPlanService {
     }
 
     const userId = userData.user.id;
+    const householdId = this.household.householdId();
 
     // Calculate the start of the lookback window
     const startDate = new Date(currentWeekStart + 'T00:00:00Z');
     startDate.setUTCDate(startDate.getUTCDate() - weeksBack * 7);
     const lookbackStart = startDate.toISOString().slice(0, 10);
 
-    // Query meal_assignments joined through weekly_plans to filter by user and date range
+    if (householdId) {
+      // Household mode: filter weekly_plans by household_id
+      const { data, error } = await this.supabase.client
+        .from('meal_assignments')
+        .select('dish_id, weekly_plans!inner(household_id, week_start)')
+        .eq('weekly_plans.household_id', householdId)
+        .gte('weekly_plans.week_start', lookbackStart)
+        .lt('weekly_plans.week_start', currentWeekStart);
+
+      if (error) {
+        throw error;
+      }
+
+      const dishIds = new Set<string>();
+      for (const row of data || []) {
+        dishIds.add(row.dish_id);
+      }
+
+      return dishIds;
+    }
+
+    // Solo mode: filter weekly_plans by user_id
     const { data, error } = await this.supabase.client
       .from('meal_assignments')
       .select('dish_id, weekly_plans!inner(user_id, week_start)')
@@ -186,6 +258,7 @@ export class MealPlanService {
   /**
    * Load the user's category preferences.
    * Returns DEFAULT_CATEGORY_PREFERENCES if no preferences have been saved.
+   * Kept user-scoped (not household-scoped) — per research decision.
    */
   async getCategoryPreferences(): Promise<Record<DishCategory, number>> {
     const { data, error } = await this.supabase.client
@@ -215,6 +288,7 @@ export class MealPlanService {
 
   /**
    * Upsert all three category preference rows for the current user.
+   * Kept user-scoped (not household-scoped) — per research decision.
    */
   async saveCategoryPreferences(prefs: Record<DishCategory, number>): Promise<void> {
     const { data: userData, error: userError } = await this.supabase.client.auth.getUser();

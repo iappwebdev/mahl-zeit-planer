@@ -1,0 +1,155 @@
+@if (isLoading()) {
+  <div class="flex items-center justify-center py-12">
+    <div class="text-gray-500">Wird geladen...</div>
+  </div>
+} @else if (!household()) {
+  <!-- State 1: No household -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-3">Haushalt erstellen</h2>
+    <p class="text-gray-600 mb-5">
+      Erstelle einen Haushalt, um Gerichte und Wochenplaene mit deiner Familie zu teilen.
+    </p>
+    <div class="flex gap-3">
+      <input
+        type="text"
+        [(ngModel)]="newHouseholdName"
+        placeholder="z.B. Familie Mueller"
+        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+        (keyup.enter)="createHousehold()"
+      />
+      <button
+        (click)="createHousehold()"
+        [disabled]="!newHouseholdName.trim()"
+        class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+      >
+        Haushalt erstellen
+      </button>
+    </div>
+  </div>
+} @else {
+  <!-- State 2: Has household -->
+  <div class="space-y-6">
+
+    <!-- Household header -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h2 class="text-xl font-semibold text-gray-800">Haushalt: {{ household()!.name }}</h2>
+    </div>
+
+    <!-- Members section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">Mitglieder</h3>
+        <span class="bg-gray-100 text-gray-600 text-sm font-medium px-2.5 py-0.5 rounded-full">
+          {{ members().length }}
+        </span>
+      </div>
+      <ul class="space-y-3">
+        @for (member of members(); track member.id) {
+          <li class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-gray-800 font-medium">{{ member.display_name ?? 'Unbekannt' }}</span>
+              @if (member.household_role === 'owner') {
+                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Besitzer</span>
+              } @else {
+                <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-0.5 rounded-full">Mitglied</span>
+              }
+            </div>
+            @if (isCurrentUserOwner() && member.household_role !== 'owner') {
+              <button
+                (click)="removeMember(member.id)"
+                class="text-red-500 hover:text-red-700 transition-colors p-1 rounded"
+                title="Mitglied entfernen"
+              >
+                &#x2715;
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- Invite section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Einladen</h3>
+
+      <!-- Link invite -->
+      <div class="mb-5">
+        <button
+          (click)="createInviteLink()"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+        >
+          Link erstellen
+        </button>
+        @if (inviteLink()) {
+          <p class="mt-2 text-sm text-gray-500 break-all">{{ inviteLink() }}</p>
+        }
+      </div>
+
+      <!-- Email invite -->
+      <div class="border-t border-gray-100 pt-5">
+        <p class="text-sm text-gray-600 mb-3">Per E-Mail einladen:</p>
+        <div class="flex gap-3">
+          <input
+            type="email"
+            [(ngModel)]="inviteEmail"
+            placeholder="email@beispiel.de"
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            (keyup.enter)="sendEmailInvite()"
+          />
+          <button
+            (click)="sendEmailInvite()"
+            [disabled]="!inviteEmail.trim() || isSendingInvite()"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+          >
+            @if (isSendingInvite()) { Sende... } @else { Per E-Mail einladen }
+          </button>
+        </div>
+      </div>
+
+      <!-- Active invites -->
+      @if (invites().length > 0) {
+        <div class="border-t border-gray-100 pt-5 mt-5">
+          <p class="text-sm font-medium text-gray-700 mb-3">Aktive Einladungen</p>
+          <ul class="space-y-2">
+            @for (invite of invites(); track invite.id) {
+              <li class="flex items-center justify-between text-sm text-gray-600">
+                <span>
+                  @if (invite.invited_email) {
+                    {{ invite.invited_email }}
+                  } @else {
+                    Link-Einladung
+                  }
+                </span>
+                <span class="text-gray-400">Laueft ab: {{ formatDate(invite.expires_at) }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+
+    <!-- Actions section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Aktionen</h3>
+      <div class="flex flex-wrap gap-3">
+        @if (!isCurrentUserOwner()) {
+          <button
+            (click)="leaveHousehold()"
+            class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
+          >
+            Haushalt verlassen
+          </button>
+        }
+        @if (isCurrentUserOwner()) {
+          <button
+            (click)="deleteHousehold()"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+          >
+            Haushalt loeschen
+          </button>
+        }
+      </div>
+    </div>
+
+  </div>
+}

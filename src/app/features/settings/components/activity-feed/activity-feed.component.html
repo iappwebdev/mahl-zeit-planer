@@ -1,0 +1,26 @@
+<div class="bg-white rounded-lg shadow-sm p-4">
+  <h2 class="text-lg font-semibold text-gray-800 mb-4">Letzte Aktivitaeten</h2>
+
+  @if (isLoading()) {
+    <p class="text-sm text-gray-500">Laden...</p>
+  } @else if (entries().length === 0) {
+    <p class="text-sm text-gray-400 italic">Noch keine Aktivitaeten</p>
+  } @else {
+    <div class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+      @for (entry of entries(); track entry.id) {
+        <div class="py-2 pl-3 {{ entryBorderClass(entry.action) }}">
+          <div class="flex items-start gap-2">
+            <span class="text-base leading-tight mt-0.5 shrink-0">{{ actionIcon(entry.action) }}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-gray-800 leading-snug">
+                <span class="font-medium">{{ entry.display_name || 'Jemand' }}</span>
+                hat {{ actionText(entry) }}
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">{{ timeAgo(entry.created_at) }}</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

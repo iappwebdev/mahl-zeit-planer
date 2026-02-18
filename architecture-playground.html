@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><title>Mahl-Zeit-Planer – Architekturkarte</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+#header{padding:10px 16px;border-bottom:1px solid #1e293b;display:flex;align-items:center;gap:12px;flex-shrink:0}
+#header h1{font-size:15px;font-weight:600;color:#f8fafc}
+#header .sub{font-size:11px;color:#64748b}
+#app{display:flex;flex:1;overflow:hidden}
+#sidebar{width:230px;border-right:1px solid #1e293b;padding:12px;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;gap:14px}
+#sidebar h3{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#canvas-wrap{flex:1;overflow:auto;position:relative;background:#0a1628}
+#canvas-wrap svg{display:block;cursor:default}
+#zoom-btns{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:4px}
+#zoom-btns button{width:28px;height:28px;background:#1e293b;border:1px solid #334155;border-radius:4px;color:#e2e8f0;cursor:pointer;font-size:15px;line-height:1}
+#zoom-btns button:hover{background:#334155}
+#output{border-top:1px solid #1e293b;padding:10px 14px;flex-shrink:0;max-height:150px;overflow-y:auto}
+#prompt-box{font-size:12px;color:#cbd5e1;line-height:1.6;white-space:pre-wrap;font-family:monospace;min-height:32px}
+.out-footer{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.out-label{font-size:10px;color:#475569}
+#copy-btn{padding:4px 12px;background:#3b82f6;border:none;border-radius:4px;color:#fff;font-size:11px;cursor:pointer}
+#copy-btn:hover{background:#2563eb}
+#copy-btn.ok{background:#10b981}
+.preset-btns{display:flex;flex-wrap:wrap;gap:4px}
+.pb{padding:4px 8px;background:#1e293b;border:1px solid #334155;border-radius:4px;color:#94a3b8;font-size:11px;cursor:pointer;transition:all .15s}
+.pb:hover,.pb.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
+label.row{display:flex;align-items:center;gap:7px;margin-bottom:5px;cursor:pointer;font-size:12px;color:#cbd5e1}
+label.row input{margin:0;cursor:pointer;accent-color:#3b82f6}
+.dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.cline{width:20px;height:2px;flex-shrink:0}
+.ci{background:#1e293b;border-radius:4px;padding:7px 8px;margin-bottom:5px;font-size:12px}
+.ci-tgt{font-weight:600;color:#93c5fd;margin-bottom:2px}
+.ci-txt{color:#94a3b8;line-height:1.4}
+.ci-del{float:right;background:none;border:none;color:#475569;cursor:pointer;font-size:14px;line-height:1}
+.ci-del:hover{color:#ef4444}
+.empty{font-size:11px;color:#475569;font-style:italic}
+#legend{position:absolute;bottom:10px;left:10px;background:rgba(15,23,42,.92);border:1px solid #1e293b;border-radius:6px;padding:8px 12px;font-size:10px;color:#64748b}
+.li{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.ll{width:18px;height:2px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:100}
+#mbox{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:20px;width:380px;max-width:90vw}
+#mtitle{font-size:14px;font-weight:600;margin-bottom:3px}
+#msub{font-size:10px;color:#64748b;margin-bottom:10px;font-family:monospace}
+#mta{width:100%;height:90px;background:#0f172a;border:1px solid #334155;border-radius:4px;color:#e2e8f0;font-size:12px;padding:7px;resize:vertical;font-family:system-ui}
+#mta:focus{outline:none;border-color:#3b82f6}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.mbtns button{padding:5px 14px;border-radius:4px;font-size:12px;cursor:pointer;border:1px solid #334155}
+#mcancel{background:#0f172a;color:#94a3b8}
+#msave{background:#3b82f6;border-color:#3b82f6;color:#fff}
+</style>
+</head>
+<body>
+<div id="header">
+  <h1>🍽️ Mahl-Zeit-Planer</h1>
+  <span class="sub">Architekturkarte · Klicke auf eine Komponente, um Feedback hinzuzufügen</span>
+</div>
+<div id="app">
+  <div id="sidebar">
+    <div>
+      <h3>Ansicht</h3>
+      <div class="preset-btns">
+        <button class="pb active" onclick="applyPreset('full',this)">Vollständig</button>
+        <button class="pb" onclick="applyPreset('frontend',this)">Frontend</button>
+        <button class="pb" onclick="applyPreset('dataflow',this)">Datenfluss</button>
+        <button class="pb" onclick="applyPreset('backend',this)">Backend</button>
+      </div>
+    </div>
+    <div>
+      <h3>Layer</h3>
+      <label class="row"><input type="checkbox" id="l-app" checked onchange="updateAll()"><span class="dot" style="background:#bfdbfe"></span>App Shell</label>
+      <label class="row"><input type="checkbox" id="l-shared" checked onchange="updateAll()"><span class="dot" style="background:#c7d2fe"></span>Shared UI</label>
+      <label class="row"><input type="checkbox" id="l-core" checked onchange="updateAll()"><span class="dot" style="background:#fde68a"></span>Core / Guards</label>
+      <label class="row"><input type="checkbox" id="l-features" checked onchange="updateAll()"><span class="dot" style="background:#bbf7d0"></span>Features</label>
+      <label class="row"><input type="checkbox" id="l-sub" checked onchange="updateAll()"><span class="dot" style="background:#a7f3d0"></span>Sub-Komponenten</label>
+      <label class="row"><input type="checkbox" id="l-backend" checked onchange="updateAll()"><span class="dot" style="background:#fecdd3"></span>Supabase Backend</label>
+    </div>
+    <div>
+      <h3>Verbindungen</h3>
+      <label class="row"><input type="checkbox" id="c-dependency" checked onchange="updateAll()"><span class="cline" style="background:#6b7280"></span>Import</label>
+      <label class="row"><input type="checkbox" id="c-data-flow" checked onchange="updateAll()"><span class="cline" style="background:#3b82f6"></span>Datenfluss</label>
+      <label class="row"><input type="checkbox" id="c-tool-call" checked onchange="updateAll()"><span class="cline" style="background:#10b981"></span>Service-Aufruf</label>
+      <label class="row"><input type="checkbox" id="c-event" checked onchange="updateAll()"><span class="cline" style="background:#f97316"></span>Realtime Event</label>
+    </div>
+    <div>
+      <h3>Kommentare (<span id="ccount">0</span>)</h3>
+      <div id="clist"><p class="empty">Noch keine Kommentare.<br>Komponente anklicken.</p></div>
+    </div>
+  </div>
+  <div id="main">
+    <div id="canvas-wrap">
+      <svg id="svg" width="1600" height="750"></svg>
+      <div id="zoom-btns">
+        <button onclick="zoom(1.2)" title="Zoom in">+</button>
+        <button onclick="zoom(0.83)" title="Zoom out">−</button>
+        <button onclick="resetZoom()" title="Zurücksetzen">↺</button>
+      </div>
+      <div id="legend">
+        <div class="li"><span class="ll" style="background:#6b7280"></span>Import</div>
+        <div class="li"><span class="ll" style="background:#3b82f6"></span>Datenfluss</div>
+        <div class="li"><span class="ll" style="background:#10b981"></span>Service-Aufruf</div>
+        <div class="li"><span class="ll" style="background:#f97316"></span>Realtime Event</div>
+      </div>
+    </div>
+    <div id="output">
+      <div id="prompt-box"></div>
+      <div class="out-footer">
+        <span class="out-label">Prompt für Claude</span>
+        <button id="copy-btn" onclick="copyPrompt()">Prompt kopieren</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div id="mbox">
+    <div id="mtitle"></div>
+    <div id="msub"></div>
+    <textarea id="mta" placeholder="Was möchtest du zu dieser Komponente sagen?"></textarea>
+    <div class="mbtns">
+      <button id="mcancel" onclick="closeModal()">Abbrechen</button>
+      <button id="msave" onclick="saveComment()">Speichern</button>
+    </div>
+  </div>
+</div>
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const NW=160,NH=48;
+const NODES=[
+  // App Shell (y=30)
+  {id:'app-root',     label:'App Root',          sub:'src/app/app.ts',                                            x:500,y:30,  layer:'app',      color:'#dbeafe'},
+  {id:'app-config',   label:'App Config',         sub:'src/app/app.config.ts',                                     x:700,y:30,  layer:'app',      color:'#dbeafe'},
+  {id:'app-routes',   label:'App Routes',         sub:'src/app/app.routes.ts',                                     x:900,y:30,  layer:'app',      color:'#dbeafe'},
+  // Shared UI (y=140)
+  {id:'layout',       label:'Layout',             sub:'shared/components/layout',                                  x:360,y:140, layer:'shared',   color:'#e0e7ff'},
+  {id:'navbar',       label:'Navbar',             sub:'shared/components/navbar',                                  x:560,y:140, layer:'shared',   color:'#e0e7ff'},
+  // Core / Guards (y=255)
+  {id:'supabase-svc', label:'SupabaseService',    sub:'core/services/supabase.service',                            x:60, y:255, layer:'core',     color:'#fef3c7'},
+  {id:'household-svc',label:'HouseholdService',   sub:'core/services/household.service',                           x:280,y:255, layer:'core',     color:'#fef3c7'},
+  {id:'realtime-svc', label:'RealtimeService',    sub:'core/services/realtime.service',                            x:500,y:255, layer:'core',     color:'#fef3c7'},
+  {id:'auth-guard',   label:'AuthGuard',          sub:'core/guards/auth.guard',                                    x:760,y:255, layer:'core',     color:'#fef3c7'},
+  {id:'guest-guard',  label:'GuestGuard',         sub:'core/guards/guest.guard',                                   x:960,y:255, layer:'core',     color:'#fef3c7'},
+  // Features (y=375)
+  {id:'auth-feature', label:'Auth Feature',       sub:'features/auth/ (login, register, reset…)',                  x:60, y:375, layer:'features', color:'#f3e8ff'},
+  {id:'dishes-cmp',   label:'DishesComponent',    sub:'features/dishes/dishes.component',                          x:310,y:375, layer:'features', color:'#dcfce7'},
+  {id:'meal-plan-cmp',label:'MealPlanComponent',  sub:'features/meal-plan/meal-plan.component',                    x:620,y:375, layer:'features', color:'#dcfce7'},
+  {id:'settings-cmp', label:'SettingsComponent',  sub:'features/settings/settings.component',                     x:1000,y:375,layer:'features', color:'#dcfce7'},
+  // Sub-components (y=495)
+  {id:'dish-svc',     label:'DishService',        sub:'features/dishes/services/dish.service',                     x:160,y:495, layer:'sub',      color:'#d1fae5'},
+  {id:'meal-plan-svc',label:'MealPlanService',    sub:'features/meal-plan/services/meal-plan.service',             x:460,y:495, layer:'sub',      color:'#d1fae5'},
+  {id:'meal-gen-svc', label:'MealPlanGenerator',  sub:'features/meal-plan/services/meal-plan-generator.service',  x:670,y:495, layer:'sub',      color:'#d1fae5'},
+  {id:'dish-picker',  label:'DishPicker',         sub:'features/meal-plan/components/dish-picker',                 x:880,y:495, layer:'sub',      color:'#dbeafe'},
+  {id:'cat-config',   label:'CategoryConfig',     sub:'features/meal-plan/components/category-config',            x:1080,y:495,layer:'sub',      color:'#dbeafe'},
+  {id:'hh-panel',     label:'HouseholdPanel',     sub:'features/settings/components/household-panel',             x:1280,y:495,layer:'sub',      color:'#dbeafe'},
+  {id:'act-feed',     label:'ActivityFeed',       sub:'features/settings/components/activity-feed',               x:1280,y:375,layer:'sub',      color:'#dbeafe'},
+  // Supabase Backend (y=620)
+  {id:'sb-auth',      label:'Supabase Auth',      sub:'supabase/auth',                                             x:60, y:620, layer:'backend',  color:'#fecdd3'},
+  {id:'db-profiles',  label:'DB: profiles',       sub:'supabase/migrations/001_profiles.sql',                      x:260,y:620, layer:'backend',  color:'#fecdd3'},
+  {id:'db-dishes',    label:'DB: dishes',         sub:'supabase/migrations/002_dishes.sql',                        x:460,y:620, layer:'backend',  color:'#fecdd3'},
+  {id:'db-mealplans', label:'DB: meal_plans',     sub:'supabase/migrations/003_meal_plans.sql',                    x:660,y:620, layer:'backend',  color:'#fecdd3'},
+  {id:'db-households',label:'DB: households',     sub:'supabase/migrations/004_households.sql',                    x:860,y:620, layer:'backend',  color:'#fecdd3'},
+  {id:'edge-invite',  label:'Edge: invite-user',  sub:'supabase/functions/invite-user',                            x:1100,y:620,layer:'backend',  color:'#fecdd3'},
+];
+const CONNS=[
+  {from:'app-root',     to:'app-config',    type:'dependency'},
+  {from:'app-root',     to:'app-routes',    type:'dependency'},
+  {from:'app-routes',   to:'auth-guard',    type:'tool-call',  label:'canActivate'},
+  {from:'app-routes',   to:'guest-guard',   type:'tool-call',  label:'canActivate'},
+  {from:'app-routes',   to:'layout',        type:'dependency'},
+  {from:'app-routes',   to:'auth-feature',  type:'dependency', label:'lazy'},
+  {from:'layout',       to:'navbar',        type:'dependency'},
+  {from:'layout',       to:'dishes-cmp',    type:'dependency'},
+  {from:'layout',       to:'meal-plan-cmp', type:'dependency'},
+  {from:'layout',       to:'settings-cmp',  type:'dependency'},
+  {from:'auth-guard',   to:'supabase-svc',  type:'tool-call'},
+  {from:'guest-guard',  to:'supabase-svc',  type:'tool-call'},
+  {from:'dishes-cmp',   to:'dish-svc',      type:'tool-call'},
+  {from:'meal-plan-cmp',to:'meal-plan-svc', type:'tool-call'},
+  {from:'meal-plan-cmp',to:'meal-gen-svc',  type:'tool-call'},
+  {from:'meal-plan-cmp',to:'dish-picker',   type:'dependency'},
+  {from:'meal-plan-cmp',to:'cat-config',    type:'dependency'},
+  {from:'settings-cmp', to:'household-svc', type:'tool-call'},
+  {from:'settings-cmp', to:'hh-panel',      type:'dependency'},
+  {from:'settings-cmp', to:'act-feed',      type:'dependency'},
+  {from:'dish-svc',     to:'supabase-svc',  type:'data-flow'},
+  {from:'meal-plan-svc',to:'supabase-svc',  type:'data-flow'},
+  {from:'household-svc',to:'supabase-svc',  type:'data-flow'},
+  {from:'meal-gen-svc', to:'dish-svc',      type:'tool-call'},
+  {from:'household-svc',to:'realtime-svc',  type:'event', label:'subscribe'},
+  {from:'realtime-svc', to:'supabase-svc',  type:'data-flow'},
+  {from:'hh-panel',     to:'edge-invite',   type:'tool-call', label:'invite'},
+  {from:'supabase-svc', to:'sb-auth',       type:'data-flow'},
+  {from:'supabase-svc', to:'db-profiles',   type:'data-flow'},
+  {from:'dish-svc',     to:'db-dishes',     type:'data-flow'},
+  {from:'meal-plan-svc',to:'db-mealplans',  type:'data-flow'},
+  {from:'household-svc',to:'db-households', type:'data-flow'},
+];
+const CSTYLE={
+  'dependency': {color:'#6b7280', dash:null},
+  'data-flow':  {color:'#3b82f6', dash:null},
+  'tool-call':  {color:'#10b981', dash:'6,3'},
+  'event':      {color:'#f97316', dash:'4,4'},
+};
+const LLABELS={app:'App Shell',shared:'Shared UI',core:'Core / Guards',features:'Features',sub:'Sub-Komponenten',backend:'Supabase Backend'};
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const state={
+  layers:{app:1,shared:1,core:1,features:1,sub:1,backend:1},
+  conns:{'dependency':1,'data-flow':1,'tool-call':1,'event':1},
+  scale:1, comments:[],
+};
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function visNodes(){return NODES.filter(n=>state.layers[n.layer]);}
+function visConns(){const ids=new Set(visNodes().map(n=>n.id));return CONNS.filter(c=>ids.has(c.from)&&ids.has(c.to)&&state.conns[c.type]);}
+
+function renderDiagram(){
+  const svg=document.getElementById('svg');
+  const vn=visNodes();
+  let maxX=1400,maxY=700;
+  vn.forEach(n=>{maxX=Math.max(maxX,n.x+NW+40);maxY=Math.max(maxY,n.y+NH+60);});
+  svg.setAttribute('width',maxX*state.scale);
+  svg.setAttribute('height',maxY*state.scale);
+  svg.setAttribute('viewBox',`0 0 ${maxX} ${maxY}`);
+
+  let h=buildDefs();
+  // Layer band labels
+  const bandY={app:20,shared:128,core:243,features:363,sub:483,backend:608};
+  Object.entries(bandY).forEach(([l,y])=>{
+    if(state.layers[l]) h+=`<text x="8" y="${y+13}" fill="#334155" font-size="10" font-family="system-ui">${LLABELS[l]}</text>`;
+  });
+  visConns().forEach(c=>{h+=buildConn(c);});
+  vn.forEach(n=>{h+=buildNode(n);});
+  svg.innerHTML=h;
+  vn.forEach(n=>{
+    const el=svg.querySelector(`#nd-${n.id}`);
+    if(el) el.addEventListener('click',()=>openModal(n.id));
+  });
+}
+
+function buildDefs(){
+  return '<defs>'+Object.entries(CSTYLE).map(([t,s])=>
+    `<marker id="arr-${t}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="${s.color}"/></marker>`
+  ).join('')+'</defs>';
+}
+
+function buildNode(n){
+  const hc=state.comments.some(c=>c.target===n.id);
+  const stroke=hc?'#f59e0b':'#475569';
+  const sw=hc?2:1;
+  const cx=n.x+NW/2;
+  const labelTxt=n.label.length>20?n.label.slice(0,19)+'…':n.label;
+  const subTxt=n.sub.length>26?'…'+n.sub.slice(-25):n.sub;
+  return `<g id="nd-${n.id}" style="cursor:pointer">
+    <rect x="${n.x}" y="${n.y}" width="${NW}" height="${NH}" rx="6" fill="${n.color}" stroke="${stroke}" stroke-width="${sw}" opacity=".95"/>
+    ${hc?`<circle cx="${n.x+NW-7}" cy="${n.y+7}" r="5" fill="#f59e0b"/>`:''}
+    <text x="${cx}" y="${n.y+18}" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a" font-family="system-ui">${labelTxt}</text>
+    <text x="${cx}" y="${n.y+33}" text-anchor="middle" font-size="9" fill="#64748b" font-family="monospace">${subTxt}</text>
+  </g>`;
+}
+
+function buildConn(c){
+  const f=NODES.find(n=>n.id===c.from),t=NODES.find(n=>n.id===c.to);
+  if(!f||!t) return '';
+  const s=CSTYLE[c.type];
+  const dash=s.dash?`stroke-dasharray="${s.dash}"`:'';
+  let pathD,lx,ly;
+  if(f.y===t.y){
+    // same level – horizontal
+    const x1=f.x+(t.x>f.x?NW:0), y1=f.y+NH/2;
+    const x2=t.x+(t.x>f.x?0:NW), y2=t.y+NH/2;
+    pathD=`M${x1},${y1} L${x2},${y2}`;
+    lx=(x1+x2)/2; ly=y1-6;
+  } else {
+    // cross-level – bezier top→bottom
+    const x1=f.x+NW/2, y1=f.y+NH;
+    const x2=t.x+NW/2, y2=t.y;
+    const dy=Math.abs(y2-y1);
+    pathD=`M${x1},${y1} C${x1},${y1+dy*.5} ${x2},${y2-dy*.5} ${x2},${y2}`;
+    lx=(x1+x2)/2; ly=(y1+y2)/2;
+  }
+  return `<path d="${pathD}" fill="none" stroke="${s.color}" stroke-width="1.5" ${dash} marker-end="url(#arr-${c.type})" opacity=".7"/>`
+    +(c.label?`<text x="${lx}" y="${ly}" text-anchor="middle" font-size="9" fill="${s.color}" font-family="system-ui">${c.label}</text>`:'');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+let activeId=null;
+function openModal(id){
+  activeId=id;
+  const n=NODES.find(x=>x.id===id);
+  document.getElementById('mtitle').textContent=n.label;
+  document.getElementById('msub').textContent=n.sub;
+  const ex=state.comments.find(c=>c.target===id);
+  document.getElementById('mta').value=ex?ex.text:'';
+  document.getElementById('modal').style.display='flex';
+  setTimeout(()=>document.getElementById('mta').focus(),50);
+}
+function closeModal(){document.getElementById('modal').style.display='none';activeId=null;}
+function saveComment(){
+  const txt=document.getElementById('mta').value.trim();
+  if(!txt){closeModal();return;}
+  const n=NODES.find(x=>x.id===activeId);
+  const idx=state.comments.findIndex(c=>c.target===activeId);
+  const obj={id:Date.now(),target:activeId,label:n.label,sub:n.sub,text:txt};
+  if(idx>=0) state.comments[idx]=obj; else state.comments.push(obj);
+  closeModal(); updateAll();
+}
+
+// ── COMMENTS ──────────────────────────────────────────────────────────────────
+function renderComments(){
+  document.getElementById('ccount').textContent=state.comments.length;
+  const el=document.getElementById('clist');
+  if(!state.comments.length){el.innerHTML='<p class="empty">Noch keine Kommentare.<br>Komponente anklicken.</p>';return;}
+  el.innerHTML=state.comments.map(c=>`
+    <div class="ci">
+      <button class="ci-del" onclick="delComment(${c.id})">×</button>
+      <div class="ci-tgt">${c.label}</div>
+      <div class="ci-txt">${c.text}</div>
+    </div>`).join('');
+}
+function delComment(id){state.comments=state.comments.filter(c=>c.id!==id);updateAll();}
+
+// ── PROMPT ────────────────────────────────────────────────────────────────────
+function updatePrompt(){
+  const vis=Object.entries(state.layers).filter(([,v])=>v).map(([k])=>LLABELS[k]);
+  let t=`Das ist die Architektur von "Mahl-Zeit-Planer" (Angular 19 + Supabase).\n`;
+  if(vis.length<6) t+=`Sichtbare Layer: ${vis.join(', ')}.\n`;
+  if(!state.comments.length){
+    t+='\nKlicke auf Komponenten in der Karte um Feedback oder Fragen hinzuzufügen.';
+  } else {
+    t+='\nFeedback zu einzelnen Komponenten:\n';
+    state.comments.forEach(c=>{t+=`\n**${c.label}** (${c.sub}):\n${c.text}\n`;});
+  }
+  document.getElementById('prompt-box').textContent=t;
+}
+
+// ── ZOOM / COPY ───────────────────────────────────────────────────────────────
+function zoom(f){state.scale=Math.min(2,Math.max(.25,state.scale*f));renderDiagram();}
+function resetZoom(){state.scale=1;renderDiagram();}
+function copyPrompt(){
+  navigator.clipboard.writeText(document.getElementById('prompt-box').textContent).then(()=>{
+    const b=document.getElementById('copy-btn');
+    b.textContent='✓ Kopiert!';b.classList.add('ok');
+    setTimeout(()=>{b.textContent='Prompt kopieren';b.classList.remove('ok');},2000);
+  });
+}
+
+// ── PRESETS ───────────────────────────────────────────────────────────────────
+const PRESETS={
+  full:     {layers:{app:1,shared:1,core:1,features:1,sub:1,backend:1}, conns:{dependency:1,'data-flow':1,'tool-call':1,event:1}},
+  frontend: {layers:{app:1,shared:1,core:1,features:1,sub:1,backend:0}, conns:{dependency:1,'data-flow':0,'tool-call':1,event:0}},
+  dataflow: {layers:{app:0,shared:0,core:1,features:1,sub:1,backend:1}, conns:{dependency:0,'data-flow':1,'tool-call':0,event:1}},
+  backend:  {layers:{app:0,shared:0,core:1,features:0,sub:0,backend:1}, conns:{dependency:0,'data-flow':1,'tool-call':0,event:0}},
+};
+function applyPreset(name,btn){
+  const p=PRESETS[name];
+  Object.assign(state.layers,p.layers);
+  Object.assign(state.conns,p.conns);
+  Object.entries(state.layers).forEach(([k,v])=>{const e=document.getElementById('l-'+k);if(e)e.checked=!!v;});
+  Object.entries(state.conns).forEach(([k,v])=>{const e=document.getElementById('c-'+k);if(e)e.checked=!!v;});
+  document.querySelectorAll('.pb').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  updateAll();
+}
+
+// ── SYNC + INIT ───────────────────────────────────────────────────────────────
+function syncState(){
+  ['app','shared','core','features','sub','backend'].forEach(l=>{
+    const e=document.getElementById('l-'+l);if(e)state.layers[l]=e.checked?1:0;
+  });
+  ['dependency','data-flow','tool-call','event'].forEach(t=>{
+    const e=document.getElementById('c-'+t);if(e)state.conns[t]=e.checked?1:0;
+  });
+}
+function updateAll(){syncState();renderDiagram();renderComments();updatePrompt();}
+updateAll();
+</script>
+</body>
+</html>
+

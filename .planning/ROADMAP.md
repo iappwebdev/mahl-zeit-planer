@@ -80,11 +80,12 @@ Plans:
   2. User can invite family members via email or shareable link
   3. All family members see the same dish library and meal plans
   4. Changes made by one family member appear instantly for others without page refresh
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md — Data layer: households, members, invites tables, activity_log, ALTER dishes/weekly_plans with household_id, dual-mode RLS, HouseholdService, household-aware DishService/MealPlanService
+- [ ] 04-02-PLAN.md — Household UI: settings page with Haushalt panel (create/manage/invite/leave/delete), invite acceptance page, Edge Function for email invites, updated navigation
+- [ ] 04-03-PLAN.md — Realtime sync: RealtimeService with Supabase postgres_changes subscriptions, live dish/plan updates with toast notifications, activity feed component
 
 ## Progress
 
@@ -96,4 +97,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation & Auth | 3/3 | Complete | 2026-02-16 |
 | 2. Dish Management | 0/2 | Not started | - |
 | 3. Meal Planning | 0/3 | Complete    | 2026-02-17 |
-| 4. Realtime Collaboration | 0/2 | Not started | - |
+| 4. Realtime Collaboration | 0/3 | Not started | - |

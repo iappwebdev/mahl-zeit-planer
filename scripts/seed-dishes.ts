@@ -7,8 +7,8 @@ import { createClient } from '@supabase/supabase-js';
 import * as readline from 'readline';
 
 // Supabase configuration
-const SUPABASE_URL = 'https://nftnfezydrmcnwrqbznc.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdG5mZXp5ZHJtY253cnFiem5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNDY3OTYsImV4cCI6MjA4NjgyMjc5Nn0.znbDaGKoQMRaK-im_Kn_WzILVFIbyVFtPfb_v36aBGg'; // Publishable key (replaces deprecated anon key)
+const SUPABASE_URL = 'http://127.0.0.1:54321';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH';
 
 /**
  * Prompt user for input
