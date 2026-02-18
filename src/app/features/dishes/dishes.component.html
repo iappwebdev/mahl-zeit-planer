@@ -57,14 +57,16 @@
       <!-- Submit Button -->
       <button
         type="submit"
-        class="px-6 py-2.5 text-white rounded-lg transition-colors font-semibold whitespace-nowrap"
+        class="px-6 py-2.5 text-white rounded-lg transition-colors font-semibold whitespace-nowrap flex items-center gap-2"
         style="background-color: var(--brand-primary);"
         onmouseover="this.style.backgroundColor='var(--brand-hover)'"
         onmouseout="this.style.backgroundColor='var(--brand-primary)'"
       >
         @if (editingDish()) {
+          <lucide-icon [img]="Save" [size]="18"></lucide-icon>
           Speichern
         } @else {
+          <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
           Hinzufügen
         }
       </button>
@@ -74,11 +76,12 @@
         <button
           type="button"
           (click)="cancelEdit()"
-          class="px-6 py-2.5 rounded-lg transition-colors font-medium"
+          class="px-6 py-2.5 rounded-lg transition-colors font-medium flex items-center gap-2"
           style="background-color: var(--bg-surface); color: var(--text-secondary);"
           onmouseover="this.style.backgroundColor='var(--bg-surface-hover)'"
           onmouseout="this.style.backgroundColor='var(--bg-surface)'"
         >
+          <lucide-icon [img]="X" [size]="18"></lucide-icon>
           Abbrechen
         </button>
       }
@@ -114,21 +117,13 @@
         onfocus="this.style.borderColor='var(--brand-primary)'; this.style.boxShadow='0 0 0 3px var(--brand-subtle)';"
         onblur="this.style.borderColor='var(--border-standard)'; this.style.boxShadow='none';"
       />
-      <!-- Magnifying glass icon -->
-      <svg
-        class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5"
+      <!-- Search icon -->
+      <lucide-icon
+        [img]="Search"
+        [size]="20"
+        class="absolute left-3.5 top-1/2 -translate-y-1/2"
         style="color: var(--text-muted);"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
+      ></lucide-icon>
     </div>
   </div>
 
@@ -195,17 +190,13 @@
               class="p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center icon-button"
               [attr.aria-label]="dish.is_favorite ? 'Als Favorit entfernen' : 'Als Favorit markieren'"
             >
-              @if (dish.is_favorite) {
-                <!-- Filled heart -->
-                <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                </svg>
-              } @else {
-                <!-- Outline heart -->
-                <svg class="w-6 h-6 transition-colors" style="color: var(--text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              }
+              <lucide-icon
+                [img]="Heart"
+                [size]="22"
+                [class.text-red-500]="dish.is_favorite"
+                [attr.fill]="dish.is_favorite ? 'currentColor' : 'none'"
+                [style.color]="!dish.is_favorite ? 'var(--text-muted)' : ''"
+              ></lucide-icon>
             </button>
 
             <!-- Edit Button -->
@@ -215,10 +206,7 @@
               class="p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center icon-button"
               aria-label="Gericht bearbeiten"
             >
-              <!-- Pencil icon -->
-              <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
+              <lucide-icon [img]="Edit2" [size]="20" class="text-secondary"></lucide-icon>
             </button>
 
             <!-- Delete Button -->
@@ -228,10 +216,7 @@
               class="p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center icon-button-danger"
               aria-label="Gericht löschen"
             >
-              <!-- Trash icon -->
-              <svg class="w-5 h-5" style="color: var(--error);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
+              <lucide-icon [img]="Trash2" [size]="20" style="color: var(--error);"></lucide-icon>
             </button>
           </div>
         </div>

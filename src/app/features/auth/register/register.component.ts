@@ -3,17 +3,24 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../core/services/supabase.service';
+import { LucideAngularModule, User, Mail, Lock, UserPlus } from 'lucide-angular';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
   templateUrl: './register.component.html'
 })
 export class RegisterComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private supabase = inject(SupabaseService);
+
+  // Lucide icons
+  readonly User = User;
+  readonly Mail = Mail;
+  readonly Lock = Lock;
+  readonly UserPlus = UserPlus;
 
   registerForm: FormGroup;
   isLoading = false;

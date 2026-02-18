@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DishService } from './services/dish.service';
 import { Dish, DishCategory, CreateDishPayload } from './models/dish.model';
+import { LucideAngularModule, Plus, Search, Heart, Edit2, Trash2, X, Save } from 'lucide-angular';
 
 /**
  * Dish management page component
@@ -11,7 +12,7 @@ import { Dish, DishCategory, CreateDishPayload } from './models/dish.model';
  */
 @Component({
   selector: 'app-dishes',
-  imports: [ReactiveFormsModule, MatSnackBarModule],
+  imports: [ReactiveFormsModule, MatSnackBarModule, LucideAngularModule],
   templateUrl: './dishes.component.html',
   styleUrl: './dishes.component.css'
 })
@@ -20,6 +21,15 @@ export class DishesComponent implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+
+  // Lucide icons
+  readonly Plus = Plus;
+  readonly Search = Search;
+  readonly Heart = Heart;
+  readonly Edit2 = Edit2;
+  readonly Trash2 = Trash2;
+  readonly X = X;
+  readonly Save = Save;
 
   // State signals
   private allDishes = signal<Dish[]>([]);

@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { SupabaseService } from '../../../core/services/supabase.service';
+import { LucideAngularModule, Mail, Lock, LogIn } from 'lucide-angular';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
   templateUrl: './login.component.html'
 })
 export class LoginComponent {
@@ -15,6 +16,11 @@ export class LoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private supabase = inject(SupabaseService);
+
+  // Lucide icons
+  readonly Mail = Mail;
+  readonly Lock = Lock;
+  readonly LogIn = LogIn;
 
   loginForm: FormGroup;
   isLoading = false;
