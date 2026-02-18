@@ -1,14 +1,14 @@
 <div class="p-4 max-w-4xl mx-auto">
   <!-- Page Header -->
   <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+    <h1 class="text-3xl font-semibold flex items-center gap-3" style="color: var(--text-primary); letter-spacing: -0.02em;">
       Meine Gerichte
-      <span class="text-base font-normal text-gray-500">{{ dishCount() }} Gerichte</span>
+      <span class="text-base font-medium px-3 py-1 rounded-full" style="background-color: var(--bg-surface); color: var(--text-tertiary);">{{ dishCount() }} Gerichte</span>
     </h1>
   </div>
 
   <!-- Inline Form -->
-  <form [formGroup]="dishForm" (ngSubmit)="saveDish()" class="mb-6 bg-white rounded-lg shadow-md p-4">
+  <form [formGroup]="dishForm" (ngSubmit)="saveDish()" class="mb-6 bg-surface rounded-xl shadow-card p-5">
     <div class="flex flex-col md:flex-row gap-3">
       <!-- Name Input -->
       <div class="flex-1">
@@ -16,10 +16,13 @@
           formControlName="name"
           type="text"
           placeholder="Neues Gericht..."
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          class="w-full px-4 py-2.5 border rounded-lg focus:outline-none transition-all font-medium"
+          style="background-color: var(--bg-elevated); border-color: var(--border-standard); color: var(--text-primary);"
+          onfocus="this.style.borderColor='var(--brand-primary)'; this.style.boxShadow='0 0 0 3px var(--brand-subtle)';"
+          onblur="this.style.borderColor='var(--border-standard)'; this.style.boxShadow='none';"
         />
         @if (dishForm.get('name')?.invalid && dishForm.get('name')?.touched) {
-          <div class="text-red-500 text-sm mt-1">
+          <div class="text-sm mt-1.5" style="color: var(--error);">
             @if (dishForm.get('name')?.errors?.['required']) {
               Name ist erforderlich
             }
@@ -34,15 +37,18 @@
       <div class="w-full md:w-48">
         <select
           formControlName="category"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          class="w-full px-4 py-2.5 border rounded-lg focus:outline-none transition-all font-medium"
+          style="background-color: var(--bg-elevated); border-color: var(--border-standard); color: var(--text-primary);"
+          onfocus="this.style.borderColor='var(--brand-primary)'; this.style.boxShadow='0 0 0 3px var(--brand-subtle)';"
+          onblur="this.style.borderColor='var(--border-standard)'; this.style.boxShadow='none';"
         >
           <option value="">Kategorie wählen</option>
-          <option value="Fisch">Fisch</option>
-          <option value="Fleisch">Fleisch</option>
-          <option value="Vegetarisch">Vegetarisch</option>
+          <option value="Fisch">🐟 Fisch</option>
+          <option value="Fleisch">🥩 Fleisch</option>
+          <option value="Vegetarisch">🥬 Vegetarisch</option>
         </select>
         @if (dishForm.get('category')?.invalid && dishForm.get('category')?.touched) {
-          <div class="text-red-500 text-sm mt-1">
+          <div class="text-sm mt-1.5" style="color: var(--error);">
             Kategorie ist erforderlich
           </div>
         }
@@ -51,11 +57,16 @@
       <!-- Submit Button -->
       <button
         type="submit"
-        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium whitespace-nowrap"
+        class="px-6 py-2.5 text-white rounded-lg transition-colors font-semibold whitespace-nowrap flex items-center gap-2"
+        style="background-color: var(--brand-primary);"
+        onmouseover="this.style.backgroundColor='var(--brand-hover)'"
+        onmouseout="this.style.backgroundColor='var(--brand-primary)'"
       >
         @if (editingDish()) {
+          <lucide-icon [img]="Save" [size]="18"></lucide-icon>
           Speichern
         } @else {
+          <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
           Hinzufügen
         }
       </button>
@@ -65,8 +76,12 @@
         <button
           type="button"
           (click)="cancelEdit()"
-          class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+          class="px-6 py-2.5 rounded-lg transition-colors font-medium flex items-center gap-2"
+          style="background-color: var(--bg-surface); color: var(--text-secondary);"
+          onmouseover="this.style.backgroundColor='var(--bg-surface-hover)'"
+          onmouseout="this.style.backgroundColor='var(--bg-surface)'"
         >
+          <lucide-icon [img]="X" [size]="18"></lucide-icon>
           Abbrechen
         </button>
       }
@@ -74,19 +89,16 @@
   </form>
 
   <!-- Tab Bar -->
-  <div role="tablist" class="flex gap-1 border-b border-gray-200 mb-4 overflow-x-auto">
+  <div role="tablist" class="flex gap-1 border-b mb-5 overflow-x-auto" style="border-color: var(--border-standard);">
     @for (tab of tabs; track tab.id) {
       <button
         role="tab"
         type="button"
         [attr.aria-selected]="activeTab() === tab.id"
         (click)="setTab(tab.id)"
-        class="px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors"
-        [class.border-green-600]="activeTab() === tab.id"
-        [class.text-green-600]="activeTab() === tab.id"
-        [class.border-transparent]="activeTab() !== tab.id"
-        [class.text-gray-600]="activeTab() !== tab.id"
-        [class.hover:text-gray-800]="activeTab() !== tab.id"
+        class="px-4 py-2.5 font-semibold whitespace-nowrap border-b-2 transition-colors tab-button"
+        [class.active-tab]="activeTab() === tab.id"
+        [class.inactive-tab]="activeTab() !== tab.id"
       >
         {{ tab.label }}
       </button>
@@ -100,52 +112,48 @@
         type="text"
         placeholder="Gerichte suchen..."
         (input)="updateSearch($event)"
-        class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+        class="w-full px-4 py-2.5 pl-11 border rounded-lg focus:outline-none transition-all font-medium"
+        style="background-color: var(--bg-elevated); border-color: var(--border-standard); color: var(--text-primary);"
+        onfocus="this.style.borderColor='var(--brand-primary)'; this.style.boxShadow='0 0 0 3px var(--brand-subtle)';"
+        onblur="this.style.borderColor='var(--border-standard)'; this.style.boxShadow='none';"
       />
-      <!-- Magnifying glass icon -->
-      <svg
-        class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
+      <!-- Search icon -->
+      <lucide-icon
+        [img]="Search"
+        [size]="20"
+        class="absolute left-3.5 top-1/2 -translate-y-1/2"
+        style="color: var(--text-muted);"
+      ></lucide-icon>
     </div>
   </div>
 
   <!-- Loading State -->
   @if (isLoading()) {
-    <div class="text-center py-8 text-gray-500">
+    <div class="text-center py-12 text-tertiary">
       Laden...
     </div>
   }
 
   <!-- Error State -->
   @if (error()) {
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-4">
+    <div class="rounded-xl p-4 mb-4" style="background-color: var(--error-bg); border: 1px solid var(--error); color: var(--error);">
       {{ error() }}
     </div>
   }
 
   <!-- Empty State -->
   @if (!isLoading() && filteredDishes().length === 0) {
-    <div class="text-center py-12">
+    <div class="text-center py-16">
       @if (hasNoDishes()) {
-        <div class="text-gray-500">
-          <div class="text-5xl mb-4">🍽️</div>
-          <p class="text-lg font-medium mb-2">Noch keine Gerichte</p>
-          <p class="text-gray-400">Füge dein erstes Gericht oben hinzu!</p>
+        <div style="color: var(--text-tertiary);">
+          <div class="text-6xl mb-4">🍽️</div>
+          <p class="text-lg font-semibold mb-2" style="color: var(--text-secondary);">Noch keine Gerichte</p>
+          <p style="color: var(--text-muted);">Füge dein erstes Gericht oben hinzu!</p>
         </div>
       } @else {
-        <div class="text-gray-500">
-          <div class="text-5xl mb-4">🔍</div>
-          <p class="text-lg font-medium">Keine Gerichte gefunden</p>
+        <div style="color: var(--text-tertiary);">
+          <div class="text-6xl mb-4">🔍</div>
+          <p class="text-lg font-semibold" style="color: var(--text-secondary);">Keine Gerichte gefunden</p>
         </div>
       }
     </div>
@@ -153,25 +161,25 @@
 
   <!-- Dish List -->
   @if (!isLoading() && filteredDishes().length > 0) {
-    <div class="space-y-2">
+    <div class="space-y-3">
       @for (dish of filteredDishes(); track dish.id) {
-        <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
+        <div class="bg-surface rounded-xl shadow-card p-4 hover:shadow-card-hover transition-all dish-card">
           <div class="flex items-center gap-3">
             <!-- Dish Name -->
-            <div class="flex-1 font-medium text-gray-800">
+            <div class="flex-1 font-semibold text-primary">
               {{ dish.name }}
             </div>
 
             <!-- Category Badge -->
             <span
-              class="px-3 py-1 rounded-full text-sm font-medium"
-              [class.bg-blue-100]="dish.category === 'Fisch'"
-              [class.text-blue-800]="dish.category === 'Fisch'"
-              [class.bg-red-100]="dish.category === 'Fleisch'"
-              [class.text-red-800]="dish.category === 'Fleisch'"
-              [class.bg-green-100]="dish.category === 'Vegetarisch'"
-              [class.text-green-800]="dish.category === 'Vegetarisch'"
+              class="px-3 py-1.5 rounded-full text-sm font-semibold category-badge"
+              [class.category-fish]="dish.category === 'Fisch'"
+              [class.category-meat]="dish.category === 'Fleisch'"
+              [class.category-veg]="dish.category === 'Vegetarisch'"
             >
+              @if (dish.category === 'Fisch') { 🐟 }
+              @if (dish.category === 'Fleisch') { 🥩 }
+              @if (dish.category === 'Vegetarisch') { 🥬 }
               {{ dish.category }}
             </span>
 
@@ -179,46 +187,36 @@
             <button
               type="button"
               (click)="toggleFavorite(dish)"
-              class="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              class="p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center icon-button"
               [attr.aria-label]="dish.is_favorite ? 'Als Favorit entfernen' : 'Als Favorit markieren'"
             >
-              @if (dish.is_favorite) {
-                <!-- Filled heart -->
-                <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                </svg>
-              } @else {
-                <!-- Outline heart -->
-                <svg class="w-6 h-6 text-gray-400 hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              }
+              <lucide-icon
+                [img]="Heart"
+                [size]="22"
+                [class.text-red-500]="dish.is_favorite"
+                [attr.fill]="dish.is_favorite ? 'currentColor' : 'none'"
+                [style.color]="!dish.is_favorite ? 'var(--text-muted)' : ''"
+              ></lucide-icon>
             </button>
 
             <!-- Edit Button -->
             <button
               type="button"
               (click)="startEdit(dish)"
-              class="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              class="p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center icon-button"
               aria-label="Gericht bearbeiten"
             >
-              <!-- Pencil icon -->
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
+              <lucide-icon [img]="Edit2" [size]="20" class="text-secondary"></lucide-icon>
             </button>
 
             <!-- Delete Button -->
             <button
               type="button"
               (click)="deleteDish(dish)"
-              class="p-2 hover:bg-red-50 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              class="p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center icon-button-danger"
               aria-label="Gericht löschen"
             >
-              <!-- Trash icon -->
-              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
+              <lucide-icon [img]="Trash2" [size]="20" style="color: var(--error);"></lucide-icon>
             </button>
           </div>
         </div>
@@ -226,3 +224,42 @@
     </div>
   }
 </div>
+
+<style>
+  .active-tab {
+    border-color: var(--brand-primary) !important;
+    color: var(--brand-primary) !important;
+  }
+
+  .inactive-tab {
+    border-color: transparent !important;
+    color: var(--text-tertiary) !important;
+  }
+
+  .inactive-tab:hover {
+    color: var(--text-secondary) !important;
+  }
+
+  .category-fish {
+    background-color: var(--ocean-100);
+    color: var(--ocean-600);
+  }
+
+  .category-meat {
+    background-color: var(--coral-100);
+    color: var(--coral-600);
+  }
+
+  .category-veg {
+    background-color: var(--sage-100);
+    color: var(--sage-600);
+  }
+
+  .icon-button:hover {
+    background-color: var(--bg-surface-hover);
+  }
+
+  .icon-button-danger:hover {
+    background-color: var(--error-bg);
+  }
+</style>

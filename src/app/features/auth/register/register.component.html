@@ -1,18 +1,20 @@
-<div class="min-h-screen flex items-center justify-center bg-green-50 px-4 py-8">
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+<div class="min-h-screen flex items-center justify-center bg-canvas px-4 py-8">
+  <div class="w-full max-w-md bg-surface rounded-2xl shadow-elevated p-8">
     <!-- Branding -->
-    <div class="text-center mb-8">
-      <div class="text-4xl mb-2">🍴</div>
-      <h1 class="text-2xl font-bold text-green-800">MahlZeitPlaner</h1>
+    <div class="text-center mb-10">
+      <div class="text-5xl mb-3">🍴</div>
+      <h1 class="text-3xl font-bold" style="color: var(--brand-primary); letter-spacing: -0.02em;">MahlZeitPlaner</h1>
+      <p class="text-sm mt-2" style="color: var(--text-tertiary);">Deine Wochenplanung, einfach gemacht</p>
     </div>
 
     <!-- Register Form -->
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <h2 class="text-xl font-semibold text-gray-800 mb-6">Registrieren</h2>
+      <h2 class="text-xl font-semibold mb-6 text-primary">Registrieren</h2>
 
       <!-- Display Name Field -->
       <div class="mb-4">
-        <label for="displayName" class="block text-base font-medium text-gray-700 mb-2">
+        <label for="displayName" class="block text-base font-medium text-gray-700 mb-2 flex items-center gap-2">
+          <lucide-icon [img]="User" [size]="16"></lucide-icon>
           Name
         </label>
         <input
@@ -36,7 +38,8 @@
 
       <!-- Email Field -->
       <div class="mb-4">
-        <label for="email" class="block text-base font-medium text-gray-700 mb-2">
+        <label for="email" class="block text-base font-medium text-gray-700 mb-2 flex items-center gap-2">
+          <lucide-icon [img]="Mail" [size]="16"></lucide-icon>
           E-Mail
         </label>
         <input
@@ -60,7 +63,8 @@
 
       <!-- Password Field -->
       <div class="mb-6">
-        <label for="password" class="block text-base font-medium text-gray-700 mb-2">
+        <label for="password" class="block text-base font-medium text-gray-700 mb-2 flex items-center gap-2">
+          <lucide-icon [img]="Lock" [size]="16"></lucide-icon>
           Passwort
         </label>
         <input
@@ -104,19 +108,49 @@
             Wird geladen...
           </span>
         } @else {
-          <span>Registrieren</span>
+          <span class="inline-flex items-center gap-2">
+            <lucide-icon [img]="UserPlus" [size]="20"></lucide-icon>
+            Registrieren
+          </span>
         }
       </button>
     </form>
 
     <!-- Login Link -->
-    <div class="mt-6 text-center">
-      <p class="text-base text-gray-600">
+    <div class="mt-8 text-center">
+      <p class="text-base text-secondary">
         Bereits ein Konto?
-        <a routerLink="/anmelden" class="text-green-600 hover:text-green-700 font-semibold ml-1">
+        <a routerLink="/anmelden" class="font-bold ml-1 transition-colors" style="color: var(--brand-primary);">
           Anmelden
         </a>
       </p>
     </div>
   </div>
 </div>
+
+<style>
+  .auth-input {
+    background-color: var(--bg-elevated);
+    border-color: var(--border-standard);
+    color: var(--text-primary);
+  }
+
+  .auth-input:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px var(--brand-subtle);
+  }
+
+  .border-error {
+    border-color: var(--error) !important;
+  }
+
+  .auth-submit {
+    background-color: var(--brand-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .auth-submit:hover:not(:disabled) {
+    background-color: var(--brand-hover);
+    box-shadow: var(--shadow-md);
+  }
+</style>

@@ -1,25 +1,23 @@
 <div class="p-4 max-w-4xl mx-auto">
 
   <!-- Week Navigation Header -->
-  <div class="flex items-center justify-between mb-3">
+  <div class="flex items-center justify-between mb-5">
 
     <!-- Left arrow (always enabled — past weeks are viewable) -->
     <button
       type="button"
       (click)="navigateWeek(-1)"
-      class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+      class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors nav-button"
       aria-label="Vorherige Woche"
     >
-      <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
+      <lucide-icon [img]="ChevronLeft" [size]="24" class="text-secondary"></lucide-icon>
     </button>
 
     <!-- Week label -->
-    <div class="flex flex-col items-center gap-1">
-      <span class="font-semibold text-gray-800 text-sm text-center">{{ weekHeaderLabel() }}</span>
+    <div class="flex flex-col items-center gap-1.5">
+      <span class="font-bold text-primary text-base text-center" style="letter-spacing: -0.01em;">{{ weekHeaderLabel() }}</span>
       @if (isPastWeek()) {
-        <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">Nur Ansicht</span>
+        <span class="text-xs font-semibold px-3 py-1 rounded-full" style="background-color: var(--bg-surface); color: var(--text-tertiary);">Nur Ansicht</span>
       }
     </div>
 
@@ -28,37 +26,34 @@
       type="button"
       (click)="navigateWeek(1)"
       [disabled]="!canGoForward()"
-      class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors"
-      [class.hover:bg-gray-100]="canGoForward()"
+      class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors nav-button"
       [class.opacity-30]="!canGoForward()"
       [class.cursor-not-allowed]="!canGoForward()"
       aria-label="Nächste Woche"
     >
-      <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-      </svg>
+      <lucide-icon [img]="ChevronRight" [size]="24" class="text-secondary"></lucide-icon>
     </button>
 
   </div>
 
   <!-- Category Distribution Summary -->
-  <div class="flex flex-wrap gap-2 mb-4">
+  <div class="flex flex-wrap gap-2 mb-5">
     @if (isLoading()) {
-      <span class="text-sm text-gray-400">Lade Wochenplan...</span>
+      <span class="text-sm text-muted">Lade Wochenplan...</span>
     } @else if (distributionSummary().length > 0) {
       @for (item of distributionSummary(); track item.label) {
-        <span [class]="'px-3 py-1 rounded-full text-sm font-medium ' + item.colorClass">
+        <span [class]="'px-3 py-1.5 rounded-full text-sm font-semibold distribution-badge ' + item.colorClass">
           {{ item.label }}
         </span>
       }
     } @else {
-      <span class="text-sm text-gray-400">Noch keine Gerichte diese Woche</span>
+      <span class="text-sm text-muted">Noch keine Gerichte diese Woche</span>
     }
   </div>
 
   <!-- Generate Plan Button + Settings Toggle -->
   @if (!isPastWeek()) {
-    <div class="mb-4">
+    <div class="mb-5">
 
       <!-- Button row -->
       <div class="flex items-center gap-2">
@@ -68,10 +63,7 @@
           type="button"
           (click)="generatePlan()"
           [disabled]="isGenerating() || isPastWeek()"
-          class="flex-1 px-6 py-3 rounded-lg font-semibold text-white transition-colors flex items-center justify-center gap-2"
-          [class.bg-green-600]="!isGenerating()"
-          [class.hover:bg-green-700]="!isGenerating()"
-          [class.bg-green-400]="isGenerating()"
+          class="flex-1 px-6 py-3.5 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 generate-button"
           [class.cursor-not-allowed]="isGenerating()"
         >
           @if (isGenerating()) {
@@ -82,16 +74,10 @@
             </svg>
             Generiere...
           } @else if (hasExistingAssignments()) {
-            <!-- Refresh icon for regenerate -->
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
+            <lucide-icon [img]="Sparkles" [size]="20"></lucide-icon>
             Neu generieren
           } @else {
-            <!-- Stars / magic icon for first generation -->
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-            </svg>
+            <lucide-icon [img]="Sparkles" [size]="20"></lucide-icon>
             Plan generieren
           }
         </button>
@@ -100,18 +86,12 @@
         <button
           type="button"
           (click)="toggleCategoryConfig()"
-          class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-gray-300 transition-colors"
-          [class.bg-gray-100]="showCategoryConfig()"
-          [class.hover:bg-gray-50]="!showCategoryConfig()"
-          [class.text-green-700]="showCategoryConfig()"
-          [class.text-gray-500]="!showCategoryConfig()"
+          class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl border transition-all settings-button"
+          [class.settings-active]="showCategoryConfig()"
           title="Kategorie-Verteilung anpassen"
           aria-label="Verteilung anpassen"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+          <lucide-icon [img]="Settings" [size]="20"></lucide-icon>
         </button>
 
       </div>
@@ -127,20 +107,17 @@
       @if (generationWarnings().length > 0) {
         <div class="mt-3 space-y-2">
           @for (warning of generationWarnings(); track warning) {
-            <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-              <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <span class="text-sm text-amber-800 flex-1">{{ warning }}</span>
+            <div class="flex items-center gap-2 rounded-xl px-4 py-3 warning-box" style="background-color: var(--warning-bg); border: 1px solid var(--warning);">
+              <lucide-icon [img]="AlertTriangle" [size]="20" class="flex-shrink-0" style="color: var(--warning);"></lucide-icon>
+              <span class="text-sm font-medium flex-1" style="color: var(--warning);">{{ warning }}</span>
               <button
                 type="button"
                 (click)="dismissWarnings()"
-                class="text-amber-500 hover:text-amber-700 flex-shrink-0"
+                class="flex-shrink-0 p-1 rounded transition-colors"
+                style="color: var(--warning);"
                 aria-label="Warnung schliessen"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <lucide-icon [img]="X" [size]="16"></lucide-icon>
               </button>
             </div>
           }
@@ -151,38 +128,36 @@
   }
 
   <!-- Day Cards -->
-  <div class="space-y-2">
+  <div class="space-y-3">
     @for (card of dayCards(); track card.dayOfWeek) {
 
       @if (card.assignment) {
         <!-- Filled Day Card -->
         <div
-          class="bg-white rounded-lg shadow-sm p-4 transition-shadow"
-          [class.border-l-4]="card.isToday"
-          [class.border-green-500]="card.isToday"
+          class="bg-surface rounded-xl shadow-card p-4 transition-all day-card"
+          [class.today-card]="card.isToday"
           [class.opacity-60]="isGenerating()"
-          [class.hover:shadow-md]="isCurrentOrFutureWeek()"
+          [class.hover:shadow-card-hover]="isCurrentOrFutureWeek()"
         >
           <div class="flex items-center gap-3">
 
             <!-- Day label -->
             <div class="flex-1 min-w-0">
-              <div class="font-bold text-gray-800 text-sm mb-1">{{ card.dayLabel }}</div>
+              <div class="font-bold text-sm mb-1.5 day-label" style="color: var(--text-tertiary); letter-spacing: 0.02em; text-transform: uppercase;">{{ card.dayLabel }}</div>
               <div class="flex items-center gap-2 flex-wrap">
                 <!-- Dish name -->
-                <span class="font-medium text-gray-700 text-sm truncate">{{ card.assignment.dish?.name }}</span>
+                <span class="font-semibold text-base truncate" style="color: var(--text-primary);">{{ card.assignment.dish?.name }}</span>
 
                 <!-- Category badge -->
                 <span
-                  class="px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
-                  [class.bg-blue-100]="card.assignment.dish?.category === 'Fisch'"
-                  [class.text-blue-800]="card.assignment.dish?.category === 'Fisch'"
-                  [class.bg-red-100]="card.assignment.dish?.category === 'Fleisch'"
-                  [class.text-red-800]="card.assignment.dish?.category === 'Fleisch'"
-                  [class.bg-green-100]="card.assignment.dish?.category === 'Vegetarisch'"
-                  [class.text-green-800]="card.assignment.dish?.category === 'Vegetarisch'"
+                  class="px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
+                  [class.category-fish]="card.assignment.dish?.category === 'Fisch'"
+                  [class.category-meat]="card.assignment.dish?.category === 'Fleisch'"
+                  [class.category-veg]="card.assignment.dish?.category === 'Vegetarisch'"
                 >
-                  {{ card.assignment.dish?.category }}
+                  @if (card.assignment.dish?.category === 'Fisch') { 🐟 }
+                  @if (card.assignment.dish?.category === 'Fleisch') { 🥩 }
+                  @if (card.assignment.dish?.category === 'Vegetarisch') { 🥬 }
                 </span>
 
                 <!-- Favorite heart (display only) -->
@@ -200,13 +175,10 @@
                 type="button"
                 (click)="openDishPicker(card.dayOfWeek)"
                 [disabled]="isGenerating()"
-                class="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0"
+                class="p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0 swap-button"
                 aria-label="Gericht tauschen"
               >
-                <!-- Pencil/swap icon -->
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                </svg>
+                <lucide-icon [img]="ArrowLeftRight" [size]="20" class="text-secondary"></lucide-icon>
               </button>
             }
 
@@ -216,11 +188,10 @@
       } @else {
         <!-- Empty Day Card -->
         <div
-          class="bg-white rounded-lg shadow-sm p-4 transition-shadow"
-          [class.border-l-4]="card.isToday"
-          [class.border-green-500]="card.isToday"
+          class="bg-surface rounded-xl shadow-card p-4 transition-all day-card empty-card"
+          [class.today-card]="card.isToday"
           [class.opacity-60]="isGenerating()"
-          [class.hover:shadow-md]="isCurrentOrFutureWeek()"
+          [class.hover:shadow-card-hover]="isCurrentOrFutureWeek()"
           [class.cursor-pointer]="isCurrentOrFutureWeek() && !isGenerating()"
           (click)="openDishPicker(card.dayOfWeek)"
         >
@@ -228,20 +199,18 @@
 
             <!-- Day label + empty indicator -->
             <div class="flex-1">
-              <div class="font-bold text-gray-800 text-sm mb-1">{{ card.dayLabel }}</div>
+              <div class="font-bold text-sm mb-1.5 day-label" style="color: var(--text-tertiary); letter-spacing: 0.02em; text-transform: uppercase;">{{ card.dayLabel }}</div>
               @if (isGenerating()) {
-                <div class="h-4 bg-gray-200 rounded animate-pulse w-32"></div>
+                <div class="h-4 rounded animate-pulse w-32" style="background-color: var(--bg-surface-hover);"></div>
               } @else {
-                <div class="text-sm text-gray-400 italic">Kein Gericht</div>
+                <div class="text-sm italic" style="color: var(--text-muted);">Kein Gericht</div>
               }
             </div>
 
             <!-- Plus icon (only for editable weeks, not while generating) -->
             @if (isCurrentOrFutureWeek() && !isGenerating()) {
               <div class="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
+                <lucide-icon [img]="Plus" [size]="20" style="color: var(--text-muted);"></lucide-icon>
               </div>
             }
 
@@ -253,3 +222,66 @@
   </div>
 
 </div>
+
+<style>
+  .nav-button:hover {
+    background-color: var(--bg-surface-hover);
+  }
+
+  .generate-button {
+    background-color: var(--brand-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .generate-button:hover:not(:disabled) {
+    background-color: var(--brand-hover);
+    box-shadow: var(--shadow-md);
+  }
+
+  .generate-button:disabled {
+    background-color: var(--brand-primary);
+    opacity: 0.6;
+  }
+
+  .settings-button {
+    border-color: var(--border-standard);
+    color: var(--text-tertiary);
+  }
+
+  .settings-button:hover {
+    background-color: var(--bg-surface-hover);
+  }
+
+  .settings-active {
+    background-color: var(--brand-subtle) !important;
+    border-color: var(--brand-primary) !important;
+    color: var(--brand-primary) !important;
+  }
+
+  .day-card {
+    position: relative;
+  }
+
+  .today-card {
+    border-left: 4px solid var(--brand-primary);
+  }
+
+  .category-fish {
+    background-color: var(--ocean-100);
+    color: var(--ocean-600);
+  }
+
+  .category-meat {
+    background-color: var(--coral-100);
+    color: var(--coral-600);
+  }
+
+  .category-veg {
+    background-color: var(--sage-100);
+    color: var(--sage-600);
+  }
+
+  .swap-button:hover {
+    background-color: var(--bg-surface-hover);
+  }
+</style>

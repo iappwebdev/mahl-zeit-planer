@@ -6,6 +6,7 @@ import { DishService } from './services/dish.service';
 import { Dish, DishCategory, CreateDishPayload } from './models/dish.model';
 import { RealtimeService } from '../../core/services/realtime.service';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { LucideAngularModule, Plus, Search, Heart, Edit2, Trash2, X, Save } from 'lucide-angular';
 
 /**
  * Dish management page component
@@ -13,7 +14,7 @@ import { SupabaseService } from '../../core/services/supabase.service';
  */
 @Component({
   selector: 'app-dishes',
-  imports: [ReactiveFormsModule, MatSnackBarModule],
+  imports: [ReactiveFormsModule, MatSnackBarModule, LucideAngularModule],
   templateUrl: './dishes.component.html',
   styleUrl: './dishes.component.css'
 })
@@ -27,6 +28,15 @@ export class DishesComponent implements OnInit {
 
   /** Current user ID — set in ngOnInit, used to skip own-change toasts */
   private currentUserId: string | null = null;
+
+  // Lucide icons
+  readonly Plus = Plus;
+  readonly Search = Search;
+  readonly Heart = Heart;
+  readonly Edit2 = Edit2;
+  readonly Trash2 = Trash2;
+  readonly X = X;
+  readonly Save = Save;
 
   // State signals
   private allDishes = signal<Dish[]>([]);

@@ -25,6 +25,7 @@ import {
 } from './models/meal-plan.model';
 import { DishPickerComponent } from './components/dish-picker/dish-picker.component';
 import { CategoryConfigComponent } from './components/category-config/category-config.component';
+import { LucideAngularModule, ChevronLeft, ChevronRight, Sparkles, Settings, ArrowLeftRight, Plus, X, AlertTriangle } from 'lucide-angular';
 
 /** Shape of each day card rendered in the template */
 interface DayCard {
@@ -42,7 +43,7 @@ interface DayCard {
  */
 @Component({
   selector: 'app-meal-plan',
-  imports: [MatBottomSheetModule, MatSnackBarModule, CategoryConfigComponent],
+  imports: [MatBottomSheetModule, MatSnackBarModule, CategoryConfigComponent, LucideAngularModule],
   templateUrl: './meal-plan.component.html',
   styleUrl: './meal-plan.component.css'
 })
@@ -56,6 +57,16 @@ export class MealPlanComponent implements OnInit {
 
   /** Current user ID — set in ngOnInit, used to skip own-change toasts */
   private currentUserId: string | null = null;
+
+  // Lucide icons
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
+  readonly Sparkles = Sparkles;
+  readonly Settings = Settings;
+  readonly ArrowLeftRight = ArrowLeftRight;
+  readonly Plus = Plus;
+  readonly X = X;
+  readonly AlertTriangle = AlertTriangle;
 
   // ---------------------------------------------------------------------------
   // State

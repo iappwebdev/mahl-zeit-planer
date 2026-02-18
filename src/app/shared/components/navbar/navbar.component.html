@@ -1,25 +1,29 @@
 <!-- Desktop navigation -->
-<nav class="hidden md:flex bg-green-700 text-white px-6 py-4 shadow-lg">
+<nav class="hidden md:flex bg-canvas border-b px-6 py-4" style="border-color: var(--border-standard);">
   <div class="max-w-6xl mx-auto w-full flex items-center justify-between">
     <!-- Brand -->
-    <a routerLink="/gerichte" class="text-xl font-semibold hover:text-green-100 transition-colors">
-      MahlZeitPlaner
+    <a routerLink="/gerichte" class="text-xl font-semibold transition-colors" style="color: var(--brand-primary);">
+      🍴 MahlZeitPlaner
     </a>
 
     <!-- Navigation links -->
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-2">
       <a
         routerLink="/gerichte"
-        routerLinkActive="bg-green-600"
-        class="px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+        routerLinkActive="bg-surface"
+        class="px-4 py-2 rounded-lg transition-colors text-secondary font-medium flex items-center gap-2"
+        style="--tw-text-opacity: 1;"
       >
+        <lucide-icon [img]="ChefHat" [size]="18"></lucide-icon>
         Meine Gerichte
       </a>
       <a
         routerLink="/wochenplan"
-        routerLinkActive="bg-green-600"
-        class="px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+        routerLinkActive="bg-surface"
+        class="px-4 py-2 rounded-lg transition-colors text-secondary font-medium flex items-center gap-2"
+        style="--tw-text-opacity: 1;"
       >
+        <lucide-icon [img]="Calendar" [size]="18"></lucide-icon>
         Wochenplan
       </a>
       <a
@@ -31,8 +35,12 @@
       </a>
       <button
         (click)="logout()"
-        class="px-4 py-2 rounded-lg bg-green-800 hover:bg-green-900 transition-colors"
+        class="ml-2 px-4 py-2 rounded-lg transition-colors font-medium flex items-center gap-2"
+        style="background-color: var(--brand-primary); color: white;"
+        onmouseover="this.style.backgroundColor='var(--brand-hover)'"
+        onmouseout="this.style.backgroundColor='var(--brand-primary)'"
       >
+        <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
         Abmelden
       </button>
     </div>
@@ -40,28 +48,28 @@
 </nav>
 
 <!-- Mobile navigation (bottom tabs) -->
-<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-elevated border-t shadow-card" style="border-color: var(--border-standard);">
   <div class="flex justify-around items-center h-16">
     <!-- Gerichte tab -->
     <a
       routerLink="/gerichte"
-      routerLinkActive="text-green-700"
+      routerLinkActive="active-tab"
       [routerLinkActiveOptions]="{exact: false}"
-      class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 hover:text-green-700 transition-colors"
+      class="flex flex-col items-center justify-center flex-1 h-full text-tertiary transition-colors"
     >
-      <div class="text-2xl mb-1">🍽️</div>
-      <span class="text-xs">Gerichte</span>
+      <lucide-icon [img]="ChefHat" [size]="24" class="mb-1"></lucide-icon>
+      <span class="text-xs font-medium">Gerichte</span>
     </a>
 
     <!-- Wochenplan tab -->
     <a
       routerLink="/wochenplan"
-      routerLinkActive="text-green-700"
+      routerLinkActive="active-tab"
       [routerLinkActiveOptions]="{exact: false}"
-      class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 hover:text-green-700 transition-colors"
+      class="flex flex-col items-center justify-center flex-1 h-full text-tertiary transition-colors"
     >
-      <div class="text-2xl mb-1">📅</div>
-      <span class="text-xs">Wochenplan</span>
+      <lucide-icon [img]="Calendar" [size]="24" class="mb-1"></lucide-icon>
+      <span class="text-xs font-medium">Wochenplan</span>
     </a>
 
     <!-- Einstellungen tab -->
@@ -78,10 +86,16 @@
     <!-- Abmelden tab -->
     <button
       (click)="logout()"
-      class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 hover:text-green-700 transition-colors"
+      class="flex flex-col items-center justify-center flex-1 h-full text-tertiary transition-colors"
     >
-      <div class="text-2xl mb-1">🚪</div>
-      <span class="text-xs">Abmelden</span>
+      <lucide-icon [img]="LogOut" [size]="24" class="mb-1"></lucide-icon>
+      <span class="text-xs font-medium">Abmelden</span>
     </button>
   </div>
 </nav>
+
+<style>
+  .active-tab {
+    color: var(--brand-primary) !important;
+  }
+</style>
